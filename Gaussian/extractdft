@@ -1,0 +1,42 @@
+#! /usr/bin/env python
+# M.E. Fuller, 27 SEPT 2019
+# Modified from the original function of:
+# Aaron Danilack
+# Brown University
+# Goldsmith Research Group
+# Created: 06/08/17
+
+# Title: extractdft
+# Description: A python script to print the output energies from Gaussian optimizations from the command line
+# Inputs: sys.argv[1:] = Gaussian optimization log files
+# Usage: $ extractdft file1 file2 ...
+
+##################################################################################
+
+# Import stuff.
+import sys
+
+print '\n'
+
+for filename in sys.argv[1:]: 
+
+	E0 = [] # Fill this list with E0 lines.
+	ZPE = [] # Fill this list with ZPE lines.
+
+	# Get the data from the geometry optimization calculation.
+	logfile = open(filename, 'r')#(species + '_' + method + '_ccpvtz.log', 'r')
+	#logfile = open(path, 'r')
+	loglines = logfile.readlines()
+	logfile.close()
+
+	for (l,line) in enumerate(loglines):
+	    if line.startswith(' Sum of electronic and zero-point Energies='):
+		    E0.append(line)
+	    elif line.startswith(' Zero-point correction='):
+		    ZPE.append(line)
+
+	# Print the data we want.
+	print filename 
+	print 'E0+ZPE = ' + str(E0[-1].split()[-1])
+	print 'ZPE = ' + str(ZPE[-1].split()[-2])	 
+	print '\n'                          

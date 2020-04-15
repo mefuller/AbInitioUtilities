@@ -1,0 +1,57 @@
+#!/bin/bash
+# submit script for Gaussian jobs: takes Gaussian input file and generates submission script and submits job to slurm
+# M.E. Fuller, DEC 2019
+# derived from the multi-purpose submission script written by Malte Döntgen
+# this version is a template script and should be modified as appropriate
+# Usage: $ gsubmit file1.gjf file2.gjf ...
+
+TIME=2	# days
+
+args=("$@")
+COUNTER=1
+until [ $COUNTER -gt $# ]; do
+	# . receive job name
+	SUBMIT=true
+	if [[ ${args[COUNTER-1]} == *".gjf"* ]]; then
+		FILENAME=${args[COUNTER-1]%.gjf}
+	else 
+	    SUBMIT=false
+	fi
+
+	# . create submission script
+	if [ "$SUBMIT" = true ]; then
+		DIR=$PWD
+		JOB=script_$FILENAME.sh
+
+		# . write job file
+		echo "#!/usr/local_rwth/bin/zsh" >> $JOB
+		echo "#SBATCH --job-name=${FILENAME}" >> $JOB
+		echo "#SBATCH --output=${FILENAME}.out" >> $JOB
+		echo "#SBATCH --error=${FILENAME}.err" >> $JOB
+		echo "#SBATCH --time=${TIME}-00:00:00" >> $JOB
+		echo "#SBATCH --nodes=1" >> $JOB
+		echo "#SBATCH --cpus-per-task=12" >> $JOB
+		echo "#SBATCH --mem-per-cpu=2000M" >> $JOB
+		echo "#SBATCH --mail-user=fuller@pcfc.rwth-aachen.de" >> $JOB
+        echo "#SBATCH --mail-type=ALL" >> $JOB
+		#
+		### PUT YOUR RWTH HPC PROJECT NAME HERE; format rwthXXXX, cf. below
+		echo "#SBATCH --account=rwth0453" >> $JOB
+		###
+		#
+		echo "" >> $JOB
+		echo "module load CHEMISTRY" >> $JOB
+		echo "module load gaussian/16.b01_bin" >> $JOB
+		echo "srun g16 < ${FILENAME}.gjf > ${FILENAME}.log" >> $JOB
+		echo "formchk ${FILENAME}.chk ${FILENAME}.fchk" >> $JOB
+		#echo "rm ${FILENAME}.chk" >> $JOB
+		echo "" >> $JOB
+
+		# . submit job
+		sbatch $JOB
+	fi
+
+	# . next job
+	COUNTER=$((COUNTER + 1))
+done
+

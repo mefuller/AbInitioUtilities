@@ -1,0 +1,41 @@
+#! /usr/bin/env python
+# M.E. Fuller, 27 SEPT 2019
+# Modified from the original function of:
+# Aaron Danilack
+# Brown University
+# Goldsmith Research Group
+# Created: 05/05/17
+
+# Title: extractf12
+# Description: A python script to print the output energy and T1 diagnostic from ORCA single-point calculations from the command line
+# Inputs: sys.argv[1:] = F12 output files
+# Usage: $ extractf12 file1 file2 ...
+
+##################################################################################
+
+# Import stuff.
+import sys
+
+print '\n'
+
+for filename in sys.argv[1:]: 
+
+	E0 = [] # Fill this list with E0 lines.
+	T1 = [] # Fill this list with T1 lines.
+
+	# Get the data from the single-point calculation.
+	outfile = open(filename,'r')#(species + '_' + method + '_ccpvtz_f12_tz.out', 'r')
+	outlines = outfile.readlines()
+	outfile.close()
+
+	for (l,line) in enumerate(outlines):
+	    if line.startswith('T1 diagnostic'):
+		    T1.append(line)
+	    elif line.startswith('FINAL SINGLE POINT ENERGY'):
+		    E0.append(line)
+
+	# Print the data we want.
+	print filename 
+	print 'E0 = ' + str(E0[-1].split()[-1])
+	print 'T1 = ' + str(T1[-1].split()[-1])	
+	print '\n'                 

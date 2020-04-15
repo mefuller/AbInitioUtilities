@@ -1,0 +1,74 @@
+#!/bin/bash
+# submit script for ORCA jobs: takes Orca input file and generates submission script and submits job to slurm
+# M.E. Fuller, DEC 2019
+# derived from the multi-purpose submission script written by Malte Döntgen
+# this version is a template script and should be modified as appropriate
+# Usage: $ osubmit file1.inp file2.inp ...
+
+TIME=10		# hours
+
+args=("$@")
+COUNTER=1
+until [ $COUNTER -gt $# ]; do
+	# . receive job name / directly submit Gaussian job
+	SUBMIT=true
+	if [[ ${args[COUNTER-1]} == *".inp"* ]]; then
+		FILENAME=${args[COUNTER-1]%.inp}
+	else 
+	    SUBMIT=false
+	fi
+
+	# . create ORCA / MOLPRO job files
+	if [ "$SUBMIT" = true ]; then
+		DIR=$PWD
+		JOB=job_$FILENAME.sh
+
+		# . write job file
+		echo "#!/usr/local_rwth/bin/zsh" >> $JOB
+		echo "#SBATCH --job-name=${FILENAME}" >> $JOB
+		echo "#SBATCH --output=${FILENAME}.out" >> $JOB
+		echo "#SBATCH --error=${FILENAME}.err" >> $JOB
+		echo "#SBATCH --time=${TIME}:00:00" >> $JOB
+		echo "#SBATCH --ntasks=12" >> $JOB
+		echo "#SBATCH --mem-per-cpu=5000" >> $JOB 
+		echo "#SBATCH --nodes=1" >> $JOB
+		echo "#SBATCH --cpus-per-task=1" >> $JOB
+		echo "#SBATCH --mail-user=mark.e.fuller@gmx.de" >> $JOB
+        	echo "#SBATCH --mail-type=ALL" >> $JOB
+		#
+		### PUT YOUR RWTH HPC PROJECT NAME HERE; format rwthXXXX, cf. below
+		echo "#SBATCH --account=rwth0453" >> $JOB
+		###
+		#
+
+		echo "SDIR=`pwd`" >> $JOB
+		echo 'echo "Submission directory is: $SDIR"' >> $JOB
+		echo 'echo "The job ID assigned by the Batch system is: $SLURM_JOBID"' >> $JOB
+		echo 'echo "Number of requested processes: $SLURM_NPROCS"' >> $JOB
+
+	    	# NEW ORCA VERSION
+	    	echo 'module switch intelmpi openmpi/3.1.4' >> $JOB
+	    	echo 'ulimit -s unlimited' >> $JOB
+	    	echo 'ulimit -m unlimited' >> $JOB
+	    	echo 'export OMPI_MCA_btl=^openib' >> $JOB		    		
+		#
+		echo 'TOORCA=$HOME/qchem/ORCA/orca_4_2_0_linux_x86-64_shared_openmpi314' >> $JOB
+       		echo 'PATH=$PATH:$TOORCA' >> $JOB
+        	echo 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TOORCA' >> $JOB
+		### PUT YOUR ABSOLUTE PATH TO ORCA EXECUTABLE HERE
+		printf '$TOORCA/orca %b.inp > %b.orca.out\n' $FILENAME $FILENAME >> $JOB
+		###
+		#
+		printf 'rm -rf %b*.tmp*' $FILENAME >> $JOB
+
+		
+		echo "" >> $JOB
+
+		# . submit job
+		sbatch $JOB
+	fi
+
+	# . next job
+	COUNTER=$((COUNTER + 1))
+done
+
