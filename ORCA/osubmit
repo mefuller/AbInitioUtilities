@@ -23,6 +23,8 @@ until [ $COUNTER -gt $# ]; do
 		DIR=$PWD
 		JOB=job_$FILENAME.sh
 
+		rm $JOB #wipeout old script if present
+
 		# . write job file
 		echo "#!/usr/local_rwth/bin/zsh" >> $JOB
 		echo "#SBATCH --job-name=${FILENAME}" >> $JOB
@@ -52,7 +54,7 @@ until [ $COUNTER -gt $# ]; do
 	    	echo 'ulimit -m unlimited' >> $JOB
 	    	echo 'export OMPI_MCA_btl=^openib' >> $JOB		    		
 		#
-		echo 'TOORCA=$HOME/qchem/ORCA/orca_4_2_0_linux_x86-64_shared_openmpi314' >> $JOB
+		echo 'TOORCA=$HOME/qchem/ORCA/orca_4_2_1_linux_x86-64_shared_openmpi314' >> $JOB
        		echo 'PATH=$PATH:$TOORCA' >> $JOB
         	echo 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TOORCA' >> $JOB
 		### PUT YOUR ABSOLUTE PATH TO ORCA EXECUTABLE HERE

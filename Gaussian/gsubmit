@@ -14,6 +14,10 @@ until [ $COUNTER -gt $# ]; do
 	SUBMIT=true
 	if [[ ${args[COUNTER-1]} == *".gjf"* ]]; then
 		FILENAME=${args[COUNTER-1]%.gjf}
+		EXT="gjf"
+	elif [[ ${args[COUNTER-1]} == *".com"* ]]; then
+		FILENAME=${args[COUNTER-1]%.com}
+		EXT="com"
 	else 
 	    SUBMIT=false
 	fi
@@ -23,6 +27,8 @@ until [ $COUNTER -gt $# ]; do
 		DIR=$PWD
 		JOB=script_$FILENAME.sh
 
+		rm $JOB #wipeout old script if present
+		
 		# . write job file
 		echo "#!/usr/local_rwth/bin/zsh" >> $JOB
 		echo "#SBATCH --job-name=${FILENAME}" >> $JOB
@@ -42,7 +48,7 @@ until [ $COUNTER -gt $# ]; do
 		echo "" >> $JOB
 		echo "module load CHEMISTRY" >> $JOB
 		echo "module load gaussian/16.b01_bin" >> $JOB
-		echo "srun g16 < ${FILENAME}.gjf > ${FILENAME}.log" >> $JOB
+		echo "srun g16 < ${FILENAME}.${EXT} > ${FILENAME}.log" >> $JOB
 		echo "formchk ${FILENAME}.chk ${FILENAME}.fchk" >> $JOB
 		#echo "rm ${FILENAME}.chk" >> $JOB
 		echo "" >> $JOB
