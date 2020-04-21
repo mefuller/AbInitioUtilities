@@ -1,0 +1,26 @@
+#!/bin/bash
+# run on successfully-completed Gaussian log file(s)
+# print energies, make scan template, and write/submit single-point calculation
+# Usage: $ zweifliege file1.log file2.log ...
+# M.E. Fuller, APR 2020
+
+args=("$@")
+COUNTER=1
+until [ $COUNTER -gt $# ]; do
+	# . receive job name
+	SUBMIT=true
+	if [[ ${args[COUNTER-1]} == *".log"* ]]; then
+		FILENAME=${args[COUNTER-1]%.log}
+	else 
+	    SUBMIT=false
+	fi
+
+	if [ "$SUBMIT" = true ]; then
+		extractdft $FILENAME.log
+		writescan $FILENAME.log
+		writeorca $FILENAME.log
+		osubmit $FILENAME\_f12_tz.inp
+	fi
+
+	COUNTER=$((COUNTER + 1))
+done
