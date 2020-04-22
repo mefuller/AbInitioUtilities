@@ -13,5 +13,5 @@ Virtually all functions and scripts in this project are modifications of routine
 Happy (transition state) hunting,
 
 Mark E. Fuller
-mark.e.fuller@gmail.com
+mark.e.fuller@gmx.de
 15 April 2020
