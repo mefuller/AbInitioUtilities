@@ -1,9 +1,36 @@
 #!/bin/bash
-# submit script for Gaussian jobs: takes Gaussian input file and generates submission script and submits job to slurm
-# M.E. Fuller, DEC 2019
-# derived from the multi-purpose submission script written by Malte Döntgen
-# this version is a template script and should be modified as appropriate
-# Usage: $ gsubmit file1.gjf file2.gjf ...
+# 
+#    gsubmit: a submission script for Gaussian jobs via slurm
+#    derived from the multi-purpose submission script written by Malte Döntgen
+#    this version is a template script and should be modified as appropriate
+#    Usage: $ gsubmit file1.gjf file2.com ...
+#    Copyright (C) 2020  Mark E. Fuller
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#    Mark E. Fuller: mark.e.fuller@gmx.de
+
+
+#setup terminal output later:
+#    gsubmit  Copyright (C) 2020  Mark E. Fuller
+#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; type `show c' for details.
+
+
+################################################################################
+
 
 TIME=2	# days
 
