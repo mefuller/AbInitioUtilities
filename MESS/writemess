@@ -1,0 +1,244 @@
+#! /usr/bin/env python
+# 
+#    writemess: a python script to generate MESS input files from g09/g16 output
+#    copied from the function g09_to_paper.py written by Franklin Goldsmith
+#    this script will be revised to add functionality (hopefully)
+#    Usage: $ writemess file.log [options]
+#    Options: include 'linear' for linear structures; an integer value for the number of hindered rotors
+#    Default behavior writes output to terminal; specify 'yes' in optional arguments to write to file
+#    Copyright (C) 2020  Mark E. Fuller
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#    Mark E. Fuller: mark.e.fuller@gmx.de
+
+
+#setup terminal output later:
+#    writemess  Copyright (C) 2020  Mark E. Fuller
+#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; type `show c' for details.
+
+
+################################################################################
+import re # regular expressions
+import fileinput, sys, os
+import time
+import shutil
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+#------------------------------------------------------------------------------------------------------------------------------------
+def get_cartesian(logfile):
+	# start by parsing Gaussian log file
+	log = open(logfile, 'r')
+	loglines = log.readlines()
+	log.close()
+
+	start_freq = False
+	geom_line = 'ERROR'
+	charge = 0
+	multiplicity = 0
+	for (l,line) in enumerate(loglines):
+		if line.startswith(" Charge = "):
+			bits = line.split()
+			charge = int(bits[2])
+			multiplicity = int(bits[5])
+
+
+#                if line.startswith(' #P '):
+#			bits = line.split()
+#			if ("Freq") in bits:
+#				start_freq = True
+
+		if line.startswith(" Optimization completed"):
+			if loglines[l+1].startswith("    -- Stationary point found."):
+				start_freq = True
+
+		if (start_freq == True) and (line.startswith('                          Input orientation:')):
+			geom_line = ''
+			for i in range(1000):
+				localline =  loglines[l+5+i]
+				if localline.startswith(' ---------'):
+					break
+				else:
+					bits = localline.split()
+					if len(bits)==6:
+						N_atoms = int(bits[0])
+						atom = bits[1]
+						x = bits[3]
+						y = bits[4]
+						z = bits[5]
+						if atom=='1':
+							geom_line = geom_line +"\tH\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
+						elif atom=='6':
+							geom_line = geom_line +"\tC\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
+						elif atom=='7':
+							geom_line = geom_line +"\tN\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
+						elif atom=='8':
+							geom_line = geom_line +"\tO\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
+
+			break
+
+	if geom_line == 'ERROR':
+		print('ERROR: no geometry found for ' + logfile)
+	return N_atoms, geom_line, multiplicity
+#------------------------------------------------------------------------------------------------------------------------------------
+def get_frequencies(logfile, linear, N_rotor):
+	# start by parsing Gaussian log file
+	log = open(logfile, 'r')
+	loglines = log.readlines()
+	log.close()
+	frequencies = []
+	for (l,line) in enumerate(loglines):
+		if line.startswith(' Frequencies'):
+			bits = line.split()
+			if len(bits)==5:
+                                frequencies.append(bits[2])
+                                frequencies.append(bits[3])
+                                frequencies.append(bits[4])
+			elif len(bits)==3 and linear:
+				frequencies.append(bits[2])
+		if line.startswith(' - Thermochemistry -'):
+			break		
+
+
+	imaginary = []	
+	real = []
+	
+	for freq in frequencies:
+		if float(freq)<0.0:
+			imaginary.append(freq)
+		else:
+			real.append(freq)
+
+	#check that the sum is correct
+	if linear:
+		N_freq = 3*N_atoms - 5
+	else:
+		N_freq = 3*N_atoms - 6
+	
+	N_counted = len(imaginary) + len(real)
+#	if N_counted != N_freq:
+#		print 'we have a problem!', N_counted, N_freq, len(imaginary), len(real), logfile
+
+	#format frequencies
+	freq_line = ''
+	tors_line = '        !Torsional frequencies:'
+	for (f,freq) in enumerate(real):
+		if (f+1)<=int(N_rotor):
+			tors_line = tors_line + "\t%6.1F"%(float(freq))	
+		else:
+			freq_line = freq_line + "\t%6.1F"%(float(freq))
+		if (f+1)%3==0:
+			freq_line = freq_line + "\n"
+	if int(N_rotor)>0:
+		freq_line = freq_line + '\n' + tors_line + '\n'
+	return imaginary, freq_line
+#------------------------------------------------------------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------------------------------------------------------------
+# BEGIN HERE
+#------------------------------------------------------------------------------------------------------------------------------------
+
+#to do: pull energy from files and write automatically in file
+# perhaps add option to pass basis value for offsetting all same
+#from get_energy import get_energy 
+#energy=627.5095*get_energy(flog,forc,floc)
+
+command_line = sys.argv[1:]
+
+method = command_line[0]
+pwd = os.getcwd()
+
+N_rotor = 0
+linear = False
+newout = False
+if len(command_line)>1:
+	for item in command_line[1:]:
+		if item=='linear':
+			linear = True
+		if is_number(item):	
+			N_rotor = int(item)
+		if item=='yes':
+			newout = True
+
+
+### PART 1: GET THE GEOMETRIES
+#if os.path.exists(method):
+#print 'here ', rootname
+N_atoms, geom, multiplicity = get_cartesian(method)
+imaginary, freq =  get_frequencies(method,linear,N_rotor)
+
+if linear:
+	N_freq = 3*N_atoms - 5 - len(imaginary) - N_rotor
+else:
+	N_freq = 3*N_atoms - 6 - len(imaginary) - N_rotor
+
+
+newline = '\n'
+newline = newline + "      ! Current data taken from:\n"
+newline = newline + "      !" + pwd + '/' + method + '\n'
+
+newline = newline + "      RRHO\n"
+newline = newline + "        Geometry[angstrom]\t%d\n"%(N_atoms)
+newline = newline + geom + '\n'
+newline = newline + "        Core	RigidRotor\n"
+newline = newline + "          SymmetryFactor\tX\n"
+newline = newline + "        End\n"
+
+if N_rotor > 0:
+	for rotor in range(int(N_rotor)):
+		newline = newline + "        Rotor     Hindered\n"
+		newline = newline + "          Group                  X \t\t# atoms in rotating group excluding the atom on the axis\n"
+		newline = newline + "          Axis                   X \t\t# rotational axis\n"
+		newline = newline + "          Symmetry               X \t\t# 360/angle of rotation to recover the initial structure\n"
+		newline = newline + "          Potential[kcal/mol]    36 \t\t# number of equidistant point on the potetial energy curve with respect to the rotational angle\n\n          End\n"
+
+newline = newline + "\n        Frequencies[1/cm]\t%d\n"%(N_freq)
+newline = newline +  freq
+if len(imaginary)>0:
+	for i in imaginary:
+		newline = newline + "\n        !Imaginary mode:  %6.1F\n"%(float(i))
+
+if len(imaginary)>0:
+	newline = newline + "\n        ZeroEnergy[kcal/mol]\tTSENERGY\n"
+else:
+	newline = newline + "\n        ZeroEnergy[kcal/mol]\t0.0\n"
+
+newline = newline + "        ElectronicLevels[1/cm]\t1\n"
+newline = newline + "            0	%d\n"%(int(multiplicity))
+
+if len(imaginary)>0:
+	newline = newline + "        Tunneling\tEckart\n"
+	newline = newline + "          ImaginaryFrequency[1/cm]  %6.1F\n"%-float(imaginary[0])
+	newline = newline + "          WellDepth[kcal/mol]\tXREACTANT\n"
+	newline = newline + "          WellDepth[kcal/mol]\tXPRODUCT\n"
+	newline = newline + "        End\n"
+newline = newline + "      End\n"
+
+
+if newout:
+	newname = method.replace('.log','.paper')
+	newfile = open(newname, 'w')
+	newfile.write(newline)
+	newfile.close()
+else:
+	print(newline)
+

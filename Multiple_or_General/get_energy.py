@@ -1,10 +1,10 @@
 # 
 #    get_energy.py: a python function to read and return the optimized energy
 #    Combines zero point energy from geometry/frequency calculation with single-point energy result
-#    Usage: energy=get_energy(mol_name,mol_loc)
-#    mol_loc is path to directory where files are located
-#    mol_name is species identifier; files names are species followed by method and basis
-#    Currently written assuming methods (b2plypd3-ccpvtz//f12-tz) with Gaussian and Orca 
+#    Usage: energy=get_energy(flog,forc,floc)
+#    flog and forc are Gaussian and ORCA output files, respectively
+#    floc is path to directory where files are located
+#    Currently written assuming Gaussian and Orca 
 #    Copyright (C) 2020  Mark E. Fuller
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -32,19 +32,10 @@
 
 ################################################################################
 
-"""
-M. E. Fuller, 5 April 2020
-
-A function to automatically read and return the optimized energy
-Required files are Gaussian log and Orca output
-Single-point energy is extracted form Orca and summed with the ZPE from Gaussian
-Methods are currently assumed (b2plypd3-ccpvtz//f12-tz)
-Intended application is for input to Tamkin and/or PAPR input preparation
-"""
-def get_energy(conformer,loc):
+def get_energy(flog,forc,floc):
     #input name is the identifier, e.g. ts_ch3o_no2_to_ch2o_hno2, ch3o, no2, &c.
-    logf = (loc+conformer+"_b2plypd3_ccpvtz.log") #this is my preferred method right now
-    orcf = (loc+conformer+"_b2plypd3_ccpvtz_f12_tz.orca.out") #this is my preferred method right now
+    logf = (floc+flog) #this is my preferred method right now
+    orcf = (floc+forc) #this is my preferred method right now
 
     #extract ZPE from log file
     ZPE = [] # Fill this list with ZPE lines. 

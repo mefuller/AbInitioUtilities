@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # 
 #    writeorca: a python script to generate ORCA input files from g09/g16 output
-#    derived from the function g09_to_paper.py of written by Franklin Goldsmith
+#    derived from the function g09_to_paper.py written by Franklin Goldsmith
 #    Usage: $ writeorca file1.log file2.log ...
 #    Copyright (C) 2020  Mark E. Fuller
 #
