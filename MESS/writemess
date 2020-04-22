@@ -2,10 +2,12 @@
 # 
 #    writemess: a python script to generate MESS input files from g09/g16 output
 #    copied from the function g09_to_paper.py written by Franklin Goldsmith
-#    this script will be revised to add functionality (hopefully)
+#    added functionality: prompts user for energy, rotor information during write
 #    Usage: $ writemess file.log [options]
 #    Options: include 'linear' for linear structures; an integer value for the number of hindered rotors
 #    Default behavior writes output to terminal; specify 'yes' in optional arguments to write to file
+#    Default behavior writes otemplates for energy and rotors; 
+#    specify 'interactive' in optional arguments to prompt for file locations to write energy and rotors
 #    Copyright (C) 2020  Mark E. Fuller
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -162,6 +164,8 @@ def get_frequencies(logfile, linear, N_rotor):
 #from get_energy import get_energy 
 #energy=627.5095*get_energy(flog,forc,floc)
 
+#also want to prompt user for rotor data if N_rotor > 0
+
 command_line = sys.argv[1:]
 
 method = command_line[0]
@@ -170,6 +174,7 @@ pwd = os.getcwd()
 N_rotor = 0
 linear = False
 newout = False
+interactive = False
 if len(command_line)>1:
 	for item in command_line[1:]:
 		if item=='linear':
@@ -178,7 +183,8 @@ if len(command_line)>1:
 			N_rotor = int(item)
 		if item=='yes':
 			newout = True
-
+		if item=='interactive':
+			prompt = True
 
 ### PART 1: GET THE GEOMETRIES
 #if os.path.exists(method):
@@ -203,13 +209,24 @@ newline = newline + "        Core	RigidRotor\n"
 newline = newline + "          SymmetryFactor\tX\n"
 newline = newline + "        End\n"
 
+
+
 if N_rotor > 0:
 	for rotor in range(int(N_rotor)):
-		newline = newline + "        Rotor     Hindered\n"
-		newline = newline + "          Group                  X \t\t# atoms in rotating group excluding the atom on the axis\n"
-		newline = newline + "          Axis                   X \t\t# rotational axis\n"
-		newline = newline + "          Symmetry               X \t\t# 360/angle of rotation to recover the initial structure\n"
-		newline = newline + "          Potential[kcal/mol]    36 \t\t# number of equidistant point on the potetial energy curve with respect to the rotational angle\n\n          End\n"
+	    if interactive:
+	    #if input("Load rotor from file? (y/n): ").lower().strip()[:1] == "y":
+	        print("Load rotor %d:"%rotor)
+	        flog = input('Specify rotor file name: ')
+            floc = input('Specify path to directory where preceding file is located: ')
+            #need to write a routine to get rotor information from scan log file
+	    else:
+		    newline = newline + "        Rotor     Hindered\n"
+		    newline = newline + "          Group                  X \t\t# atoms in rotating group excluding the atom on the axis\n"
+		    newline = newline + "          Axis                   X \t\t# rotational axis\n"
+		    newline = newline + "          Symmetry               X \t\t# 360/angle of rotation to recover the initial structure\n"
+		    newline = newline + "          Potential[kcal/mol]    36 \t\t# number of equidistant point on the potetial energy curve with respect to the rotational angle\n\n          End\n"
+		
+	newline = newline + "\n        WARNING! Remove %d frequencies to account for rotors!\n"%(N_rotor)
 
 newline = newline + "\n        Frequencies[1/cm]\t%d\n"%(N_freq)
 newline = newline +  freq
@@ -217,10 +234,20 @@ if len(imaginary)>0:
 	for i in imaginary:
 		newline = newline + "\n        !Imaginary mode:  %6.1F\n"%(float(i))
 
-if len(imaginary)>0:
-	newline = newline + "\n        ZeroEnergy[kcal/mol]\tTSENERGY\n"
+if interactive:
+    print("Calculate and write energy:")	
+#if input("Write energy from calculations? (y/n): ").lower().strip()[:1] == "y": 
+    flog = input('Specify Gaussian log file name: ')
+    forc = input('Specify ORCA output file name: ')
+    floc = input('Specify path to directory where preceding files are located: ')
+    newzero = input('Baseline value for relative energies (kcal/mol)? Enter zero (0) if not: ')
+    energy=627.5095*get_energy(flog,forc,floc) #convert top kcal/mol
+    newline = newline + "\n        ZeroEnergy[kcal/mol]\t%f\n"%(energy-newzero)   
 else:
-	newline = newline + "\n        ZeroEnergy[kcal/mol]\t0.0\n"
+    if len(imaginary)>0:
+	    newline = newline + "\n        ZeroEnergy[kcal/mol]\tTSENERGY\n"
+    else:
+	    newline = newline + "\n        ZeroEnergy[kcal/mol]\t0.0\n"
 
 newline = newline + "        ElectronicLevels[1/cm]\t1\n"
 newline = newline + "            0	%d\n"%(int(multiplicity))

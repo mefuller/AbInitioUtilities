@@ -22,7 +22,7 @@
 
 
 #setup terminal output later:
-#    writescan  Copyright (C) 2020  Mark E. Fuller
+#    writeorca  Copyright (C) 2020  Mark E. Fuller
 #    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
 #    This is free software, and you are welcome to redistribute it
 #    under certain conditions; type `show c' for details.
