@@ -34,7 +34,7 @@
 # Import stuff.
 import sys
 
-print ('\n')
+print('\n')
 
 for filename in sys.argv[1:]: 
 
@@ -54,7 +54,7 @@ for filename in sys.argv[1:]:
 		    ZPE.append(line)
 
 	# Print the data we want.
-	print filename 
-	print ('E0+ZPE = ' + str(E0[-1].split()[-1]))
-	print ('ZPE = ' + str(ZPE[-1].split()[-2]))	 
-	print ('\n')                          
+	print(filename) 
+	print('E0+ZPE = ' + str(E0[-1].split()[-1]))
+	print('ZPE = ' + str(ZPE[-1].split()[-2]))	 
+	print('\n')                          
