@@ -34,7 +34,7 @@
 # Import stuff.
 import sys
 
-print '\n'
+print ('\n')
 
 for filename in sys.argv[1:]: 
 
@@ -54,6 +54,6 @@ for filename in sys.argv[1:]:
 
 	# Print the data we want.
 	print filename 
-	print 'E0 = ' + str(E0[-1].split()[-1])
-	print 'T1 = ' + str(T1[-1].split()[-1])	
-	print '\n'                 
+	print ('E0 = ' + str(E0[-1].split()[-1]))
+	print ('T1 = ' + str(T1[-1].split()[-1]))	
+	print ('\n')                 
