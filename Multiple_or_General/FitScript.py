@@ -3,7 +3,8 @@
 #    FitScript.py: a python script to generate (modified) Arrhenius fits to T, k data
 #    lightly modified from a script written by Franklin Goldsmith
 #    Usage: $ FitScript.py data.txt [options]
-#    Specify data file as output from MESS with option 'mess'; default is TAMkin
+#    Specify data file as output from MESS or TAMkin with options 'mess' or 'tamkin'
+#    Default input format assumed to be two columns: temperature and rate
 #    Default behavior is to print return modified Arrhenius fit
 #    Specify 'Arr' as option for two-parameter fit
 #    Copyright (C) 2020  Mark E. Fuller
@@ -54,20 +55,22 @@ command_line = sys.argv[1:]
 
 datafile = command_line[0]
 
-command_line = sys.argv[1:]
-
 MESS = False
+Tamkin = False
 TwoFit = False
 if len(command_line)>1:
-	for item in command_line[1:]:
-		if item=='mess':
-			MESS = True
-		if item=='Arr':
-			TwoFit = True
+    for item in command_line[1:]:
+        if item=='mess':
+            MESS = True
+        if item=='tamkin':
+            Tamkin = True
+        if item=='Arr':
+            TwoFit = True
 
-results = open(datafile,'r')
-lines = results.readlines()
-results.close()
+#results = open(datafile,'r')
+with open(datafile,'r') as results:
+    lines = results.readlines()
+#results.close()
 
 local_T = []
 local_kfwd = []
@@ -82,21 +85,24 @@ for q,line in enumerate(lines):
     if line == '\n': #empty line
         NotData = True
     else:
-	    bits = line.split()
-	    if is_number(bits[0]):
-	        NotData = False
-	        InData = True
-	        if not MESS:
-	            local_T.append(bits[0])
-	            local_kfwd.append(bits[2])
-#	local_krev.append(bits[2])
+        bits = line.split()
+        if is_number(bits[0]):
+            NotData = False
+            InData = True
+            if Tamkin:
+                local_T.append(bits[0])
+                local_kfwd.append(bits[2])
+            else:
+                local_T.append(bits[0])
+                local_kfwd.append(bits[1])            
+#    local_krev.append(bits[2])
 
 T = numpy.array(local_T,dtype=numpy.float64)
 k_fwd = numpy.array(local_kfwd,dtype=numpy.float64)
 #k_rev = numpy.array(local_krev,dtype=numpy.float64)
 
 #Avogadro number not used here since TAMkin output already on mole basis
-if not MESS: # TAMkin m^3 vs. cm^3
+if Tamkin: # TAMkin m^3 vs. cm^3
     k_fwd = k_fwd*1.0e6
     #k_rev = k_rev*1.0e6
 
@@ -108,7 +114,7 @@ if TwoFit:
     A_fwd = numpy.exp(theta_fwd[0])
     n_fwd = 0.0
     Ea_fwd = theta_fwd[1]
-    print "%s\t%5.2E    %2.1F\t\t"%(datafile, A_fwd, Ea_fwd)
+    print ("%s\t%5.2E    %2.1F\t\t"%(datafile, A_fwd, Ea_fwd))
 else:
     X = numpy.array( [ numpy.ones( len(T) ), numpy.log(T/data_T0), -1.0 / data_R / T ],dtype=numpy.float64 )
     X = X.transpose()
@@ -116,6 +122,6 @@ else:
     A_fwd = numpy.exp(theta_fwd[0])
     n_fwd = theta_fwd[1]
     Ea_fwd = theta_fwd[2]
-    print "%s\t%5.2E    %8.2F    %2.1F\t\t"%(datafile, A_fwd, n_fwd, Ea_fwd)
+    print ("%s\t%5.2E    %8.2F    %2.1F\t\t"%(datafile, A_fwd, n_fwd, Ea_fwd))
 
 #return A_fwd, n_fwd, Ea_fwd
