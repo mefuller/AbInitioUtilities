@@ -54,7 +54,7 @@ until [ $COUNTER -gt $# ]; do
 		DIR=$PWD
 		JOB=script_$FILENAME.sh
 
-		rm $JOB #wipeout old script if present
+		rm -f $JOB #wipeout old script if present; force flag accounts for file not existing
 		
 		# . write job file
 		echo "#!/usr/local_rwth/bin/zsh" >> $JOB
