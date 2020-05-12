@@ -42,10 +42,8 @@ for filename in sys.argv[1:]:
 	ZPE = [] # Fill this list with ZPE lines.
 
 	# Get the data from the geometry optimization calculation.
-	logfile = open(filename, 'r')#(species + '_' + method + '_ccpvtz.log', 'r')
-	#logfile = open(path, 'r')
-	loglines = logfile.readlines()
-	logfile.close()
+	with open (filename, 'r') as logfile:
+	    loglines = logfile.readlines()
 
 	for (l,line) in enumerate(loglines):
 	    if line.startswith(' Sum of electronic and zero-point Energies='):

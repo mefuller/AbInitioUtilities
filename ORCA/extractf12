@@ -42,9 +42,10 @@ for filename in sys.argv[1:]:
 	T1 = [] # Fill this list with T1 lines.
 
 	# Get the data from the single-point calculation.
-	outfile = open(filename,'r')#(species + '_' + method + '_ccpvtz_f12_tz.out', 'r')
-	outlines = outfile.readlines()
-	outfile.close()
+	with open (filename, 'r') as outfile:
+	#outfile = open(filename,'r')#(species + '_' + method + '_ccpvtz_f12_tz.out', 'r')
+	    outlines = outfile.readlines()
+	#outfile.close()
 
 	for (l,line) in enumerate(outlines):
 	    if line.startswith('T1 diagnostic'):

@@ -47,9 +47,8 @@ def is_number(s):
 #------------------------------------------------------------------------------------------------------------------------------------
 def get_cartesian(logfile):
 	# start by parsing Gaussian log file
-	log = open(logfile, 'r')
-	loglines = log.readlines()
-	log.close()
+	with open (logfile, 'r') as log:
+	    loglines = log.readlines()
 
 	start_freq = False
 	geom_line = 'ERROR'
