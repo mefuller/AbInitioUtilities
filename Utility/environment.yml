@@ -46,6 +46,8 @@ dependencies:
   - pyyaml
   - quantities
   - rdkit >=2019.09.1.0
+  - rmg
+  - rmgdatabase
   - scikit-learn
   - scipy
   - symmetry
