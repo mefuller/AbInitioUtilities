@@ -1,0 +1,3 @@
+An example routine where the 'refit.py' script read in CHEMKIN-formatted double-Arrhenius PLOG fits ('oldfit_*.txt') and calculated the rates as functions of temperature for each pressure.
+Running 'refit.sh' then executed 'FitScript.py' ro each data set and writes the new fits to a terminal.
+An additional acript could be written to reformat the fits as complete PLOG blocks, but this wasn#t necessary at the time.
