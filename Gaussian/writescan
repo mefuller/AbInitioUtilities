@@ -38,49 +38,49 @@ import shutil
 
 
 for gfilename in sys.argv[1:]: 
-	ifilename = gfilename.replace('.log','.gjf')
+    ifilename = gfilename.replace('.log','.gjf')
 
-	with open(ifilename, 'r')as ifile:
-		ifilelines = ifile.readlines()
+    with open(ifilename, 'r')as ifile:
+        ifilelines = ifile.readlines()
 
-	newline = ''
+    newline = ''
 
-	#copy input file information with req'd updates
-	for (l,line) in enumerate(ifilelines):
-		if line.startswith('%chk'):
-			line = line.replace('.chk','_scan_.chk')
-		elif line.startswith("#p"):
-			line = line.replace('internal','modredundant')
-		elif line.startswith('   B1'):
-			break
-		
-		newline += line
-
-
-	#get results of calculation
-	with open(gfilename, 'r')as gfile:
-		gfilelines = gfile.readlines()	
-
-	start_freq = False
-	for (l,line) in enumerate(gfilelines):
-		if line.startswith(" Optimization completed"):
-			if gfilelines[l+1].startswith("    -- Stationary point found."):
-				start_freq = True
-
-		if (start_freq == True) and (line.startswith('                       !   Optimized Parameters')):
-			geom = ''
-			for i in range(1000):
-				localline =  gfilelines[l+5+i]
-				if localline.startswith(' ---------'):
-					break
-				else:
-					bits = localline.split()
-					geom += '   ' + bits[1] + '\t' + bits[2] + '\n'
-			break
+    #copy input file information with req'd updates
+    for (l,line) in enumerate(ifilelines):
+        if line.startswith('%chk'):
+            line = line.replace('.chk','_scan_.chk')
+        elif line.startswith("#p"):
+            line = line.replace('internal','modredundant')
+        elif line.startswith('   B1'):
+            break
+        
+        newline += line
 
 
-	scanline = newline + geom	
+    #get results of calculation
+    with open(gfilename, 'r')as gfile:
+        gfilelines = gfile.readlines()    
 
-	sfilename = gfilename.replace('.log','_scan_.gjf')
-	with open(sfilename, 'w') as sfile:
-		sfile.write(scanline)
+    start_freq = False
+    for (l,line) in enumerate(gfilelines):
+        if line.startswith(" Optimization completed"):
+            if gfilelines[l+1].startswith("    -- Stationary point found."):
+                start_freq = True
+
+        if (start_freq == True) and (line.startswith('                       !   Optimized Parameters')):
+            geom = ''
+            for i in range(1000):
+                localline =  gfilelines[l+5+i]
+                if localline.startswith(' ---------'):
+                    break
+                else:
+                    bits = localline.split()
+                    geom += '   ' + bits[1] + '\t' + bits[2] + '\n'
+            break
+
+
+    scanline = newline + geom    
+
+    sfilename = gfilename.replace('.log','_scan_.gjf')
+    with open(sfilename, 'w') as sfile:
+        sfile.write(scanline)

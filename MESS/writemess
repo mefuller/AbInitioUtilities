@@ -40,124 +40,10 @@ import time
 import shutil
 
 #other utilities in the AbInitioUtilities
-from get_energy import get_energy
-from get_rotor import get_rotor
-
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-#------------------------------------------------------------------------------------------------------------------------------------
-def get_cartesian(logfile):
-    # start by parsing Gaussian log file
-    log = open(logfile, 'r')
-    loglines = log.readlines()
-    log.close()
-
-    start_freq = False
-    geom_line = 'ERROR'
-    charge = 0
-    multiplicity = 0
-    for (l,line) in enumerate(loglines):
-        if line.startswith(" Charge = "):
-            bits = line.split()
-            charge = int(bits[2])
-            multiplicity = int(bits[5])
-
-
-#                if line.startswith(' #P '):
-#            bits = line.split()
-#            if ("Freq") in bits:
-#                start_freq = True
-
-        if line.startswith(" Optimization completed"):
-            if loglines[l+1].startswith("    -- Stationary point found."):
-                start_freq = True
-
-        if (start_freq == True) and (line.startswith('                          Input orientation:')):
-            geom_line = ''
-            for i in range(1000):
-                localline =  loglines[l+5+i]
-                if localline.startswith(' ---------'):
-                    break
-                else:
-                    bits = localline.split()
-                    if len(bits)==6:
-                        N_atoms = int(bits[0])
-                        atom = bits[1]
-                        x = bits[3]
-                        y = bits[4]
-                        z = bits[5]
-                        if atom=='1':
-                            geom_line = geom_line +"\tH\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-                        elif atom=='6':
-                            geom_line = geom_line +"\tC\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-                        elif atom=='7':
-                            geom_line = geom_line +"\tN\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-                        elif atom=='8':
-                            geom_line = geom_line +"\tO\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-
-            break
-
-    if geom_line == 'ERROR':
-        print('ERROR: no geometry found for ' + logfile)
-    return N_atoms, geom_line, multiplicity
-#------------------------------------------------------------------------------------------------------------------------------------
-def get_frequencies(logfile, linear, N_rotor):
-    # start by parsing Gaussian log file
-    log = open(logfile, 'r')
-    loglines = log.readlines()
-    log.close()
-    frequencies = []
-    for (l,line) in enumerate(loglines):
-        if line.startswith(' Frequencies'):
-            bits = line.split()
-            if len(bits)==5:
-                                frequencies.append(bits[2])
-                                frequencies.append(bits[3])
-                                frequencies.append(bits[4])
-            elif len(bits)==3 and linear:
-                frequencies.append(bits[2])
-        if line.startswith(' - Thermochemistry -'):
-            break        
-
-
-    imaginary = []    
-    real = []
-    
-    for freq in frequencies:
-        if float(freq)<0.0:
-            imaginary.append(freq)
-        else:
-            real.append(freq)
-
-    #check that the sum is correct
-    if linear:
-        N_freq = 3*N_atoms - 5
-    else:
-        N_freq = 3*N_atoms - 6
-    
-    N_counted = len(imaginary) + len(real)
-#    if N_counted != N_freq:
-#        print 'we have a problem!', N_counted, N_freq, len(imaginary), len(real), logfile
-
-    #format frequencies
-    freq_line = ''
-    tors_line = '        !Torsional frequencies:'
-    for (f,freq) in enumerate(real):
-        if (f+1)<=int(N_rotor):
-            tors_line = tors_line + "\t%6.1F"%(float(freq))    
-        else:
-            freq_line = freq_line + "\t%6.1F"%(float(freq))
-        if (f+1)%3==0:
-            freq_line = freq_line + "\n"
-    if int(N_rotor)>0:
-        freq_line = freq_line + '\n' + tors_line + '\n'
-    return imaginary, freq_line
-#------------------------------------------------------------------------------------------------------------------------------------
+#from get_energy import get_energy
+#from get_rotor import get_rotor
+#from get_cartesian import get_cartesian
+from FileParsers import *
 
 #------------------------------------------------------------------------------------------------------------------------------------
 # BEGIN HERE
@@ -189,7 +75,17 @@ if len(command_line)>1:
 #if os.path.exists(method):
 #print 'here ', rootname
 N_atoms, geom, multiplicity = get_cartesian(method)
-imaginary, freq =  get_frequencies(method,linear,N_rotor)
+real, imaginary, freq = get_frequencies(method,linear,N_rotor)
+
+#check that the freq. count is correct
+N_counted = len(imaginary) + len(real)
+if linear:
+    N_total = 3*N_atoms - 5
+else:
+    N_total = 3*N_atoms - 6
+
+if N_counted != N_total:
+    print (f"Warning! Frequency count in file ({N_counted:d}) differs from expected {N_total:d}")
 
 if linear:
     N_freq = 3*N_atoms - 5 - len(imaginary) - N_rotor
@@ -214,9 +110,11 @@ if N_rotor > 0:
     for rotor in range(int(N_rotor)):
         if prompt:
         #if input("Load rotor from file? (y/n): ").lower().strip()[:1] == "y":
-            print("Load rotor %d:"%rotor)
-            flog = input('Specify rotor file name: ')
-            floc = input('Specify path to directory where preceding file is located: ')
+            print(f"Load rotor {rotor:d}:")
+            #flog = input('Specify rotor file name: ')
+            grp = input('Specify rotor group name: ')
+            flog = method.replace('.log',f'_scan_{grp:s}.log')
+            floc = pwd#input('Specify path to directory where preceding file is located: ')
             #need to write a routine to get rotor information from scan log file
             grp1, grp2, ax1, ax2, sym, stp, potline = get_rotor(flog,floc)
         else:
@@ -224,7 +122,7 @@ if N_rotor > 0:
             grp2='X'
             ax1='X'
             ax2='X'
-            sym='X'
+            sym='1'
             stp='36'
             potline=''
             
@@ -246,11 +144,11 @@ if len(imaginary)>0:
 if prompt:
     print("Calculate and write energy:")    
 #if input("Write energy from calculations? (y/n): ").lower().strip()[:1] == "y": 
-    flog = input('Specify Gaussian log file name: ')
-    forc = input('Specify ORCA output file name: ')
-    floc = input('Specify path to directory where preceding files are located: ')
+    flog = method#input('Specify Gaussian log file name: ')
+    forc = method.replace('.log','_f12_tz.inp')#input('Specify ORCA output file name: ')
+    floc = pwd#input('Specify path to directory where preceding files are located: ')
     newzero = float(input('Baseline value for relative energies (kcal/mol)? Enter zero (0) if not: '))
-    energy=627.5095*get_energy(flog,forc,floc) #convert top kcal/mol
+    energy=627.5095*get_energy(flog,forc,floc) #convert to kcal/mol
     newline = newline + "\n        ZeroEnergy[kcal/mol]\t%f\n"%(energy-newzero)   
 else:
     if len(imaginary)>0:

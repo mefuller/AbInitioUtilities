@@ -30,90 +30,31 @@
 
 ################################################################################
 
-
 # Import stuff.
 import re # regular expressions
 import fileinput, sys, os
 import time
 import shutil
 
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-#------------------------------------------------------------------------------------------------------------------------------------
-def get_cartesian(logfile):
-	# start by parsing Gaussian log file
-	with open (logfile, 'r') as log:
-	    loglines = log.readlines()
-
-	start_freq = False
-	geom_line = 'ERROR'
-	charge = 0
-	multiplicity = 0
-	for (l,line) in enumerate(loglines):
-		if line.startswith(" Charge = "):
-			bits = line.split()
-			charge = int(bits[2])
-			multiplicity = int(bits[5])
-
-		if line.startswith(" Optimization completed"):
-			if loglines[l+1].startswith("    -- Stationary point found."):
-				start_freq = True
-
-		if (start_freq == True) and (line.startswith('                          Input orientation:')):
-			geom_line = ''
-			for i in range(1000):
-				localline =  loglines[l+5+i]
-				if localline.startswith(' ---------'):
-					break
-				else:
-					bits = localline.split()
-					if len(bits)==6:
-						N_atoms = int(bits[0])
-						atom = bits[1]
-						x = bits[3]
-						y = bits[4]
-						z = bits[5]
-						if atom=='1':
-							geom_line = geom_line +"H\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-						elif atom=='6':
-							geom_line = geom_line +"C\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-						elif atom=='7':
-							geom_line = geom_line +"N\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-						elif atom=='8':
-							geom_line = geom_line +"O\t%10.6F\t%10.6F\t%10.6F\n"%(float(x),float(y), float(z))
-
-			break
-
-	if geom_line == 'ERROR':
-		print('ERROR: no geometry found for ' + logfile)
-	return N_atoms, geom_line, multiplicity
-#------------------------------------------------------------------------------------------------------------------------------------
-
-#------------------------------------------------------------------------------------------------------------------------------------
-
+from FileParsers import get_cartesian
 #------------------------------------------------------------------------------------------------------------------------------------
 # BEGIN HERE
 #------------------------------------------------------------------------------------------------------------------------------------
 
 for gfilename in sys.argv[1:]: 
 
-	N_atoms, geom, multiplicity = get_cartesian(gfilename)
+    N_atoms, geom, multiplicity = get_cartesian(gfilename)
 
-	newline = "! DLPNO-CCSD(T)-F12 cc-pVTZ-F12 cc-pVTZ/C cc-pVTZ-F12-CABS TightSCF\n"
-	newline = newline + "%MaxCore 20000\n"
-	newline = newline + "\n"
-	newline = newline + "%pal nprocs 12\n"
-	newline = newline + "end\n"
-	newline = newline + "\n"
-	newline = newline + "* xyz 0 %d\n"%(int(multiplicity))
-	newline = newline + geom
-	newline = newline + "*\n"	
+    newline = "! DLPNO-CCSD(T)-F12 cc-pVTZ-F12 cc-pVTZ/C cc-pVTZ-F12-CABS TightSCF\n"
+    newline = newline + "%MaxCore 20000\n"
+    newline = newline + "\n"
+    newline = newline + "%pal nprocs 12\n"
+    newline = newline + "end\n"
+    newline = newline + "\n"
+    newline = newline + "* xyz 0 %d\n"%(int(multiplicity))
+    newline = newline + geom
+    newline = newline + "*\n"    
 
-	ofilename = gfilename.replace('.log','_f12_tz.inp')
-	with open(ofilename, 'w') as ofile:
-		ofile.write(newline)
+    ofilename = gfilename.replace('.log','_f12_tz.inp')
+    with open(ofilename, 'w') as ofile:
+        ofile.write(newline)
