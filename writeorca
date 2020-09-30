@@ -45,16 +45,22 @@ for gfilename in sys.argv[1:]:
 
     N_atoms, geom, multiplicity = get_cartesian(gfilename)
 
-    newline = "! DLPNO-CCSD(T)-F12 cc-pVTZ-F12 cc-pVTZ/C cc-pVTZ-F12-CABS TightSCF\n"
-    newline = newline + "%MaxCore 20000\n"
-    newline = newline + "\n"
-    newline = newline + "%pal nprocs 12\n"
-    newline = newline + "end\n"
-    newline = newline + "\n"
-    newline = newline + "* xyz 0 %d\n"%(int(multiplicity))
-    newline = newline + geom
-    newline = newline + "*\n"    
 
-    ofilename = gfilename.replace('.log','_f12_tz.inp')
-    with open(ofilename, 'w') as ofile:
-        ofile.write(newline)
+    methods={"! DLPNO-CCSD(T)-F12 cc-pVTZ-F12 cc-pVTZ/C cc-pVTZ-F12-CABS TightSCF\n": '_f12_tz.inp',
+                    "! DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/c TightSCF\n": '_ccsdt_tz.inp',
+                    "! DLPNO-CCSD(T) cc-pVQZ cc-pVQZ/c TightSCF\n": '_ccsdt_qz.inp'}
+
+    for newline, ext in methods.items():
+        newline = newline + "%MaxCore 20000\n"
+        newline = newline + "\n"
+        newline = newline + "%pal nprocs 12\n"
+        newline = newline + "end\n"
+        newline = newline + "\n"
+        newline = newline + "* xyz 0 %d\n"%(int(multiplicity))
+        newline = newline + geom
+        newline = newline + "*\n"    
+
+        ofilename = gfilename.replace('.log',ext)
+        with open(ofilename, 'w') as ofile:
+            ofile.write(newline)
+
