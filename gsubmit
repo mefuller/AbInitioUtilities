@@ -74,7 +74,7 @@ until [ $COUNTER -gt $# ]; do
 		#
 		echo "" >> $JOB
 		echo "module load CHEMISTRY" >> $JOB
-		echo "module load gaussian/16.b01_bin" >> $JOB
+		echo "module load gaussian/16.c01_bin" >> $JOB
 		echo "srun g16 < ${FILENAME}.${EXT} > ${FILENAME}.log" >> $JOB
 		echo "formchk ${FILENAME}.chk ${FILENAME}.fchk" >> $JOB
 		#echo "rm ${FILENAME}.chk" >> $JOB
