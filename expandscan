@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # 
-#    writescan: a python script to generate g09/g16 scan input files (templated) from g09/g16 output
+#    expandscan: a python script to update template g09/g16 scan input files
+#    runs on output of writescan with rotors to update file name and chk file
+#    also places dummy line where scan goes for easy find and replace
 #    derived from the function g09_to_paper.py of written by Franklin Goldsmith
 #    Usage: $ writescan file1.log file2.log ...
 #    Copyright (C) 2020  Mark E. Fuller
@@ -36,53 +38,24 @@ import fileinput, sys, os
 import time
 import shutil
 
+scanfilename = sys.argv[1] #output of writescan: *scan_.gjf
+for rotor in sys.argv[2:]:
+    rotorstr='_scan_{:s}.'.format(rotor)
+    ofilename = scanfilename.replace('_scan_.',rotorstr)
 
-for gfilename in sys.argv[1:]:
-    ifilename = gfilename.replace('.log','.gjf')
-
-    with open(ifilename, 'r')as ifile:
+    with open(scanfilename, 'r')as ifile:
         ifilelines = ifile.readlines()
 
-    newline = ''
+    scanline = ''
 
     #copy input file information with req'd updates
     for (l,line) in enumerate(ifilelines):
         if line.startswith('%chk'):
-            line = line.replace('.chk','_scan_.chk')
-        elif line.startswith("#p"):
-            line = line.replace('internal','modredundant')
-            if "calcall" in line:
-                line = line.replace('calcall','calcfc') #don't want to waste time
-        elif line.startswith('   B1'):
-            break
+            line = line.replace('_scan_.',rotorstr)
 
-        newline += line
+        scanline += line
 
+    scanline += '\nW X Y Z S 36 10.0' #template dihedral scan
 
-    #get results of calculation
-    with open(gfilename, 'r')as gfile:
-        gfilelines = gfile.readlines()
-
-    start_freq = False
-    for (l,line) in enumerate(gfilelines):
-        if line.startswith(" Optimization completed"):
-            if gfilelines[l+1].startswith("    -- Stationary point found."):
-                start_freq = True
-
-        if (start_freq == True) and (line.startswith('                       !   Optimized Parameters')):
-            geom = ''
-            for i in range(1000):
-                localline =  gfilelines[l+5+i]
-                if localline.startswith(' ---------'):
-                    break
-                else:
-                    bits = localline.split()
-                    geom += '   ' + bits[1] + '\t' + bits[2] + '\n'
-            break
-
-
-    scanline = newline + geom    
-
-    sfilename = gfilename.replace('.log','_scan_.gjf')
-    with open(sfilename, 'w') as sfile:
+    with open(ofilename, 'w') as sfile:
         sfile.write(scanline)
