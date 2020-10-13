@@ -103,7 +103,7 @@ def get_energy(flog,forc,floc):
     
     return q
 
-#------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 def get_rotor(fscan,floc):
 
@@ -158,8 +158,7 @@ def get_rotor(fscan,floc):
     #print(grp1, grp2, ax1, ax2, sym, stp, potline)
     return grp1, grp2, ax1, ax2, sym, stp, potline
 
-#------------------------------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------
 def get_bondscan(fscan,floc):
     #still working on this - not tested yet
     logf = (floc+fscan) 
@@ -208,7 +207,8 @@ def get_bondscan(fscan,floc):
     #print(grp1, grp2, ax1, ax2, sym, stp, potline)
     return grp1, grp2, inc, potline
 
-#------------------------------------------------------------------------------------------------------------------------------------def get_cartesian(logfile):
+#-------------------------------------------------------------------------------
+def get_cartesian(logfile):
     # start by parsing Gaussian log file
     with open (logfile, 'r') as log:
         loglines = log.readlines()

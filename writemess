@@ -6,7 +6,7 @@
 #    Usage: $ writemess file.log [options]
 #    Options: include 'linear' for linear structures; an integer value for the number of hindered rotors
 #    Default behavior writes output to terminal; specify 'yes' in optional arguments to write to file
-#    Default behavior writes otemplates for energy and rotors; 
+#    Default behavior writes templates for energy and rotors; 
 #    specify 'interactive' in optional arguments to prompt for file locations to write energy and rotors
 #    Copyright (C) 2020  Mark E. Fuller
 #
@@ -48,7 +48,7 @@ from FileParsers import *
 #------------------------------------------------------------------------------------------------------------------------------------
 # BEGIN HERE
 #------------------------------------------------------------------------------------------------------------------------------------
-
+#SPE_ext = '_f12_tz.orca.out' #replaces '.log' on DFT file to get SPE file
 
 command_line = sys.argv[1:]
 
@@ -63,17 +63,16 @@ if len(command_line)>1:
     for item in command_line[1:]:
         if item=='linear':
             linear = True
-        if is_number(item):    
+        elif is_number(item):    
             N_rotor = int(item)
-        if item=='yes':
+        elif item=='yes':
             newout = True
-        if item=='interactive':
+        elif item=='interactive':
             prompt = True
-
+        else:
+            print(f"Command line argument not recognized: {item}")
 
 ### PART 1: GET THE GEOMETRIES
-#if os.path.exists(method):
-#print 'here ', rootname
 N_atoms, geom, multiplicity = get_cartesian(method)
 real, imaginary, freq = get_frequencies(method,linear,N_rotor)
 
@@ -145,7 +144,8 @@ if prompt:
     print("Calculate and write energy:")    
 #if input("Write energy from calculations? (y/n): ").lower().strip()[:1] == "y": 
     flog = method#input('Specify Gaussian log file name: ')
-    forc = method.replace('.log','_f12_tz.inp')#input('Specify ORCA output file name: ')
+    SPE_ext = input("Specify ORCA output file name extension (replaces '.log'): ")
+    forc = method.replace('.log',SPE_ext)#input('Specify ORCA output file name: ')
     floc = pwd#input('Specify path to directory where preceding files are located: ')
     newzero = float(input('Baseline value for relative energies (kcal/mol)? Enter zero (0) if not: '))
     energy=627.5095*get_energy(flog,forc,floc) #convert to kcal/mol
