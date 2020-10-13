@@ -127,7 +127,7 @@ def get_rotor(fscan,floc):
             stp = int(bits[6]) #number of scan steps
             inc = float(bits[7]) #angular increment, degree
 
-        if line.startswith(' E2(B2PLYPD3) ='):
+        if line.startswith(' E2('):
 	        #raw_potential.append(float(line.split()[5]))
 	        temp = line.split()[5]
         if line.startswith(' Step number   1 out of a maximum of'):
@@ -160,7 +160,55 @@ def get_rotor(fscan,floc):
 
 #------------------------------------------------------------------------------------------------------------------------------------
 
-def get_cartesian(logfile):
+def get_bondscan(fscan,floc):
+    #still working on this - not tested yet
+    logf = (floc+fscan) 
+
+    scantext = open(logf, 'r')
+    lines = scantext.readlines()
+    scantext.close()
+
+    raw_potential = []
+
+    temp=''
+
+    for q,line in enumerate(lines):
+        if line.startswith(' The following ModRedundant input section has been read:'):
+            bits = lines[q+1].split()
+            grp1 = bits[1] #possible group member
+            grp2 = bits[2] #other possible group member
+            stp = int(bits[4]) #number of scan steps
+            inc = float(bits[5]) #increment, bohr
+
+        if line.startswith(' E2('):
+	        #raw_potential.append(float(line.split()[5]))
+	        temp = line.split()[5]
+        if line.startswith(' Step number   1 out of a maximum of'):
+            Escan = float(temp.replace('D','E'))
+            raw_potential.append(Escan)
+
+    #after the last line, add the last value
+    Escan = float(temp.replace('D','E'))
+    raw_potential.append(Escan)
+
+    #
+    mini = min(raw_potential)
+    maxi = max(raw_potential)
+
+    if raw_potential[0]!=mini:
+	    print ("Warning: first entry is not minimum!")
+
+    #print ("%.2F"%(627.5095*(maxi-mini)))
+
+    potline = ''
+
+    for V in raw_potential:
+        potline = potline + " %.2F "%( 627.5095*(V-mini))
+
+    #print(grp1, grp2, ax1, ax2, sym, stp, potline)
+    return grp1, grp2, inc, potline
+
+#------------------------------------------------------------------------------------------------------------------------------------def get_cartesian(logfile):
     # start by parsing Gaussian log file
     with open (logfile, 'r') as log:
         loglines = log.readlines()
