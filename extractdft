@@ -33,26 +33,16 @@
 
 # Import stuff.
 import sys
+from FileParsers import get_energy_gaussian
 
 print('\n')
 
-for filename in sys.argv[1:]: 
+for filename in sys.argv[1:]:
 
-	E0 = [] # Fill this list with E0 lines.
-	ZPE = [] # Fill this list with ZPE lines.
+    q, w = get_energy_gaussian(filename)
 
-	# Get the data from the geometry optimization calculation.
-	with open (filename, 'r') as logfile:
-	    loglines = logfile.readlines()
-
-	for (l,line) in enumerate(loglines):
-	    if line.startswith(' Sum of electronic and zero-point Energies='):
-		    E0.append(line)
-	    elif line.startswith(' Zero-point correction='):
-		    ZPE.append(line)
-
-	# Print the data we want.
-	print(filename) 
-	print('E0+ZPE = ' + str(E0[-1].split()[-1]))
-	print('ZPE = ' + str(ZPE[-1].split()[-2]))	 
-	print('\n')                          
+    # Print the data we want.
+    print(filename)
+    print(f'E0+ZPE = {q:f}')
+    print(f'ZPE = {w:f}')
+    print('\n')

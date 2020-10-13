@@ -65,49 +65,19 @@ def is_number(s):
     except ValueError:
         return False
 
-def get_energy(flog,forc,floc):
-    #input name is the identifier, e.g. ts_ch3o_no2_to_ch2o_hno2, ch3o, no2, &c.
-    logf = (floc+flog) #this is my preferred method right now
-    orcf = (floc+forc) #this is my preferred method right now
-
+def get_energy(logf,orcf):
+    #"the" energy after we have performed DFT and SPE calculations
     #extract ZPE from log file
-    ZPE = [] # Fill this list with ZPE lines. 
+    E0_ZPE, ZPE = get_energy_gaussian(logf)
 
-    # Get the data from the geometry optimization calculation.
-    logfile = open(logf, 'r')
-    loglines = logfile.readlines()
-    logfile.close()
+    # Get the optimized energy from the single-point calculation.
+    E0, T1 = get_energy_orca(orcf)
 
-    for (l,line) in enumerate(loglines):
-        if line.startswith(' Zero-point correction='):
-            ZPE.append(line)
-
-    #print (float(ZPE[-1].split()[-2]))
-
-
-    #extract energy from orca output file
-    E0 = [] # Fill this list with E0 lines.
-
-    # Get the data from the single-point calculation.
-    outfile = open(orcf,'r')
-    outlines = outfile.readlines()
-    outfile.close()
-
-    for (l,line) in enumerate(outlines):
-        if line.startswith('FINAL SINGLE POINT ENERGY'):
-            E0.append(line)
-
-    #print (float(E0[-1].split()[-1]))
-    
-    q = ((float(ZPE[-1].split()[-2])) + (float(E0[-1].split()[-1])))
-    
-    return q
+    return (E0 + ZPE)
 
 #-------------------------------------------------------------------------------
 
-def get_rotor(fscan,floc):
-
-    logf = (floc+fscan) 
+def get_rotor(logf):
 
     scantext = open(logf, 'r')
     lines = scantext.readlines()
@@ -128,8 +98,8 @@ def get_rotor(fscan,floc):
             inc = float(bits[7]) #angular increment, degree
 
         if line.startswith(' E2('):
-	        #raw_potential.append(float(line.split()[5]))
-	        temp = line.split()[5]
+            #raw_potential.append(float(line.split()[5]))
+            temp = line.split()[5]
         if line.startswith(' Step number   1 out of a maximum of'):
             Escan = float(temp.replace('D','E'))
             raw_potential.append(Escan)
@@ -143,7 +113,7 @@ def get_rotor(fscan,floc):
     maxi = max(raw_potential)
 
     if raw_potential[0]!=mini:
-	    print ("Warning: first entry is not minimum!")
+        print ("Warning: first entry is not minimum!")
 
     #print ("%.2F"%(627.5095*(maxi-mini)))
 
@@ -159,9 +129,8 @@ def get_rotor(fscan,floc):
     return grp1, grp2, ax1, ax2, sym, stp, potline
 
 #-------------------------------------------------------------------------------
-def get_bondscan(fscan,floc):
+def get_bondscan(logf):
     #still working on this - not tested yet
-    logf = (floc+fscan) 
 
     scantext = open(logf, 'r')
     lines = scantext.readlines()
@@ -174,14 +143,14 @@ def get_bondscan(fscan,floc):
     for q,line in enumerate(lines):
         if line.startswith(' The following ModRedundant input section has been read:'):
             bits = lines[q+1].split()
-            grp1 = bits[1] #possible group member
-            grp2 = bits[2] #other possible group member
+            grp1 = bits[1] #side A
+            grp2 = bits[2] #side B
             stp = int(bits[4]) #number of scan steps
             inc = float(bits[5]) #increment, bohr
 
         if line.startswith(' E2('):
-	        #raw_potential.append(float(line.split()[5]))
-	        temp = line.split()[5]
+            #raw_potential.append(float(line.split()[5]))
+            temp = line.split()[5]
         if line.startswith(' Step number   1 out of a maximum of'):
             Escan = float(temp.replace('D','E'))
             raw_potential.append(Escan)
@@ -195,7 +164,7 @@ def get_bondscan(fscan,floc):
     maxi = max(raw_potential)
 
     if raw_potential[0]!=mini:
-	    print ("Warning: first entry is not minimum!")
+        print ("Warning: first entry is not minimum!")
 
     #print ("%.2F"%(627.5095*(maxi-mini)))
 
@@ -256,7 +225,7 @@ def get_cartesian(logfile):
         print('ERROR: no geometry found for ' + logfile)
     return N_atoms, geom_line, multiplicity    
 
-#------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 def get_frequencies(logfile, linear, N_rotor):
     # start by parsing Gaussian log file
@@ -302,12 +271,13 @@ def get_frequencies(logfile, linear, N_rotor):
         freq_line = freq_line + '\n' + tors_line + '\n'
     return real, imaginary, freq_line
 
-#------------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 def get_energy_orca(orcf):
 
     #extract energy from orca output file
     E0 = [] # Fill this list with E0 lines.
+    T1 = [] # Fill this list with T1 lines.
 
     # Get the data from the single-point calculation.
     outfile = open(orcf,'r')
@@ -317,9 +287,34 @@ def get_energy_orca(orcf):
     for (l,line) in enumerate(outlines):
         if line.startswith('FINAL SINGLE POINT ENERGY'):
             E0.append(line)
+        elif line.startswith('T1 diagnostic'):
+            T1.append(line)
 
     #print (float(E0[-1].split()[-1]))
-    
+
     q = float(E0[-1].split()[-1])
-    
-    return q
+    w = float(T1[-1].split()[-1])
+
+    return q, w
+
+#-------------------------------------------------------------------------------
+
+def get_energy_gaussian(filename):
+ 
+    E0 = [] # Fill this list with E0 lines.
+    ZPE = [] # Fill this list with ZPE lines.
+
+    # Get the data from the geometry optimization calculation.
+    with open (filename, 'r') as logfile:
+        loglines = logfile.readlines()
+
+    for (l,line) in enumerate(loglines):
+        if line.startswith(' Sum of electronic and zero-point Energies='):
+            E0.append(line)
+        elif line.startswith(' Zero-point correction='):
+            ZPE.append(line)
+
+    Energy = float(E0[-1].split()[-1])
+    ZeroPoint = float(ZPE[-1].split()[-2])
+
+    return Energy, ZeroPoint

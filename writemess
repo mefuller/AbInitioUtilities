@@ -112,10 +112,8 @@ if N_rotor > 0:
             print(f"Load rotor {rotor:d}:")
             #flog = input('Specify rotor file name: ')
             grp = input('Specify rotor group name: ')
-            flog = method.replace('.log',f'_scan_{grp:s}.log')
-            floc = pwd#input('Specify path to directory where preceding file is located: ')
-            #need to write a routine to get rotor information from scan log file
-            grp1, grp2, ax1, ax2, sym, stp, potline = get_rotor(flog,floc)
+            scanf = method.replace('.log',f'_scan_{grp:s}.log')
+            grp1, grp2, ax1, ax2, sym, stp, potline = get_rotor(scanf)
         else:
             grp1='X'
             grp2='X'
@@ -146,9 +144,8 @@ if prompt:
     flog = method#input('Specify Gaussian log file name: ')
     SPE_ext = input("Specify ORCA output file name extension (replaces '.log'): ")
     forc = method.replace('.log',SPE_ext)#input('Specify ORCA output file name: ')
-    floc = pwd#input('Specify path to directory where preceding files are located: ')
     newzero = float(input('Baseline value for relative energies (kcal/mol)? Enter zero (0) if not: '))
-    energy=627.5095*get_energy(flog,forc,floc) #convert to kcal/mol
+    energy=627.5095*get_energy(flog,forc) #convert to kcal/mol
     newline = newline + "\n        ZeroEnergy[kcal/mol]\t%f\n"%(energy-newzero)   
 else:
     if len(imaginary)>0:

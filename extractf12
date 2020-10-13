@@ -33,28 +33,16 @@
 
 # Import stuff.
 import sys
+from FileParsers import get_energy_orca
 
 print('\n')
 
-for filename in sys.argv[1:]: 
+for filename in sys.argv[1:]:
 
-	E0 = [] # Fill this list with E0 lines.
-	T1 = [] # Fill this list with T1 lines.
+    q, w = get_energy_orca(filename)
 
-	# Get the data from the single-point calculation.
-	with open (filename, 'r') as outfile:
-	#outfile = open(filename,'r')#(species + '_' + method + '_ccpvtz_f12_tz.out', 'r')
-	    outlines = outfile.readlines()
-	#outfile.close()
-
-	for (l,line) in enumerate(outlines):
-	    if line.startswith('T1 diagnostic'):
-		    T1.append(line)
-	    elif line.startswith('FINAL SINGLE POINT ENERGY'):
-		    E0.append(line)
-
-	# Print the data we want.
-	print(filename) 
-	print('E0 = ' + str(E0[-1].split()[-1]))
-	print('T1 = ' + str(T1[-1].split()[-1]))	
-	print('\n')                 
+    # Print the data we want.
+    print(filename)
+    print(f'E0 = {q:f}')
+    print(f'T1 = {w:f}')
+    print('\n')
