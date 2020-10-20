@@ -104,7 +104,7 @@ def get_rotor(logf):
             Escan = float(temp.replace('D','E'))
             raw_potential.append(Escan)
 
-    #after the last line, add the last value
+    #after the last line, append the last value
     Escan = float(temp.replace('D','E'))
     raw_potential.append(Escan)
 
@@ -119,11 +119,16 @@ def get_rotor(logf):
 
     potline = ''
 
-    for V in raw_potential:
-        potline = potline + " %.2F "%( 627.5095*(V-mini))
+    #output potential in kcal/mole
+    #formatted like this to paste into MESS / PAPR input
+    for q,V in enumerate(raw_potential):
+        if q<stp: #trim to correct/desired number of entries
+            potline = potline + " %.2F "%( 627.5095*(V-mini))
+        else:
+            break
 
 
-    sym = int(360.0/(stp*inc))
+    sym = int(360.0/(stp*inc)) #assumes writer of scan was correct
 
     #print(grp1, grp2, ax1, ax2, sym, stp, potline)
     return grp1, grp2, ax1, ax2, sym, stp, potline
@@ -146,16 +151,24 @@ def get_bondscan(logf):
             grp1 = bits[1] #side A
             grp2 = bits[2] #side B
             stp = int(bits[4]) #number of scan steps
-            inc = float(bits[5]) #increment, bohr
-
+            inc = float(bits[5]) #increment, angstrom
+        
+        #find line with initial bond length
+        #if ('!' and 'Scan') in line:
+        if (f'R({grp1},{grp2})' or f'R({grp2},{grp1})') and 'Scan' in line:
+            bits = line.split()
+            r0 = float(bit[3]) #initial bond distance, angstrom
+        
+        #extract potentials
         if line.startswith(' E2('):
-            #raw_potential.append(float(line.split()[5]))
+            #not always final
             temp = line.split()[5]
         if line.startswith(' Step number   1 out of a maximum of'):
+            #starting new step, so last energy was final
             Escan = float(temp.replace('D','E'))
             raw_potential.append(Escan)
 
-    #after the last line, add the last value
+    #after the last line, append the last value
     Escan = float(temp.replace('D','E'))
     raw_potential.append(Escan)
 
@@ -165,16 +178,16 @@ def get_bondscan(logf):
 
     if raw_potential[0]!=mini:
         print ("Warning: first entry is not minimum!")
+    
+    #return lists to pass to fitting routines
+    radius = []
+    for dx in range(stp):
+        radius.append(dx*inc + r0)
+        
+    if len(radius) != len(raw_potential):
+        print ("Warning: unequal length coordinate and potential lists!")
 
-    #print ("%.2F"%(627.5095*(maxi-mini)))
-
-    potline = ''
-
-    for V in raw_potential:
-        potline = potline + " %.2F "%( 627.5095*(V-mini))
-
-    #print(grp1, grp2, ax1, ax2, sym, stp, potline)
-    return grp1, grp2, inc, potline
+    return radius, raw_potential
 
 #-------------------------------------------------------------------------------
 def get_cartesian(logfile):
@@ -265,7 +278,7 @@ def get_frequencies(logfile, linear, N_rotor):
             tors_line = tors_line + "\t%6.1F"%(float(freq))    
         else:
             freq_line = freq_line + "\t%6.1F"%(float(freq))
-        if (f+1)%3==0:
+        if ((f+1)%3==0 and f!=0):
             freq_line = freq_line + "\n"
     if int(N_rotor)>0:
         freq_line = freq_line + '\n' + tors_line + '\n'

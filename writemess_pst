@@ -38,6 +38,7 @@ import time
 import shutil
 
 from FileParsers import *
+from PhaseSpaceFit import PhaseSpaceFit
 
 #-------------------------------------------------------------------------------
 # BEGIN HERE
@@ -55,10 +56,12 @@ N_rotor = 0
 linear = False
 newout = False
 prompt = False
-if len(command_line)>2: #additional arguemnts besides fragments passed
+if len(command_line)>2: #additional arguments besides fragments passed
     for item in command_line[2:]:
         if item=='yes':
             newout = True
+        elif item=='interactive':
+            prompt = True
         else:
             print(f"Command line argument not recognized: {item}")
 
@@ -86,8 +89,18 @@ newline += "        FragmentGeometry[angstrom]\t%d\n"%(N_atoms1)
 newline += geom1 + '\n'
 
 newline += "        SymmetryFactor\tX\n"
-newline += "        PotentialPrefactor[au]          X.0EY\n"
-newline += "        PotentialPowerExponent          Z.\n"
+
+if prompt:
+    scanf = input("Specify bond scan file: ")
+    r, V = get_bondscan(scanf)
+    A, n = PhaseSpaceFit(r, V)    
+else:
+    A = 0
+    n = 0
+
+newline += f"        PotentialPrefactor[au]          {A:.2e}\n"
+newline += f"        PotentialPowerExponent          {n:.2f}\n"
+
 newline += "        End\n"
 
 
