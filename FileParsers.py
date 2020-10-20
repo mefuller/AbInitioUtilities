@@ -135,7 +135,6 @@ def get_rotor(logf):
 
 #-------------------------------------------------------------------------------
 def get_bondscan(logf):
-    #still working on this - not tested yet
 
     scantext = open(logf, 'r')
     lines = scantext.readlines()
@@ -154,15 +153,15 @@ def get_bondscan(logf):
             inc = float(bits[5]) #increment, angstrom
         
         #find line with initial bond length
-        #if ('!' and 'Scan') in line:
-        if (f'R({grp1},{grp2})' or f'R({grp2},{grp1})') and 'Scan' in line:
+        if ('!' and 'Scan') in line:
+        #if (f'R({grp1},{grp2})' or f'R({grp2},{grp1})') and 'Scan' in line:
             bits = line.split()
-            r0 = float(bit[3]) #initial bond distance, angstrom
+            r0 = float(bits[3]) #initial bond distance, angstrom
         
         #extract potentials
-        if line.startswith(' E2('):
+        if line.startswith(' SCF Done:  E('):
             #not always final
-            temp = line.split()[5]
+            temp = line.split()[4]
         if line.startswith(' Step number   1 out of a maximum of'):
             #starting new step, so last energy was final
             Escan = float(temp.replace('D','E'))
@@ -171,7 +170,6 @@ def get_bondscan(logf):
     #after the last line, append the last value
     Escan = float(temp.replace('D','E'))
     raw_potential.append(Escan)
-
     #
     mini = min(raw_potential)
     maxi = max(raw_potential)
@@ -181,11 +179,14 @@ def get_bondscan(logf):
     
     #return lists to pass to fitting routines
     radius = []
-    for dx in range(stp):
+    for dx in range(max(stp, len(raw_potential))):
         radius.append(dx*inc + r0)
         
-    if len(radius) != len(raw_potential):
-        print ("Warning: unequal length coordinate and potential lists!")
+    if stp > len(raw_potential):
+        print ("Warning: scan appears to have terminated early")
+    if stp < len(raw_potential):
+        print ("Warning: scan potential list is unexpectedly long - truncating")
+        raw_potential = raw_potential[:stp]
 
     return radius, raw_potential
 

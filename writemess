@@ -74,6 +74,7 @@ if len(command_line)>1:
 
 ### PART 1: GET THE GEOMETRIES
 N_atoms, geom, multiplicity = get_cartesian(method)
+geom = geom.replace('\n','\n\t') #add tabs to reformat
 real, imaginary, freq = get_frequencies(method,linear,N_rotor)
 
 #check that the freq. count is correct
@@ -100,7 +101,7 @@ newline = newline + "      RRHO\n"
 newline = newline + "        Geometry[angstrom]\t%d\n"%(N_atoms)
 newline = newline + geom + '\n'
 newline = newline + "        Core    RigidRotor\n"
-newline = newline + "          SymmetryFactor\tX\n"
+newline = newline + "          SymmetryFactor\t1\n" #write 1 as default - user can change this
 newline = newline + "        End\n"
 
 
@@ -128,7 +129,7 @@ if N_rotor > 0:
         newline = newline + "          Group                  X \t\t# atoms in rotating group excluding the atom on the axis\n"
         newline = newline + "          Axis                   %s %s \t\t# rotational axis\n"%(ax1, ax2)
         newline = newline + "          Symmetry               %s \t\t# 360/angle of rotation to recover the initial structure\n"%sym
-        newline = newline + "          Potential[kcal/mol]    %s \t\t# number of equidistant point on the potetial energy curve with respect to the rotational angle\n%s\n          End\n"%(stp,potline)
+        newline = newline + "          Potential[kcal/mol]    %s \t\t# number of equidistant point on the potential energy curve with respect to the rotational angle\n\t\t%s\n          End\n"%(stp,potline)
         
 #    newline = newline + "\n        WARNING! Remove %d frequencies to account for rotors!\n"%(N_rotor)
 
