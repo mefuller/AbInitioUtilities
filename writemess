@@ -99,7 +99,7 @@ newline = newline + "      !" + pwd + '/' + method + '\n'
 
 newline = newline + "      RRHO\n"
 newline = newline + "        Geometry[angstrom]\t%d\n"%(N_atoms)
-newline = newline + geom + '\n'
+newline = newline + '\t' + geom + '\n'
 newline = newline + "        Core    RigidRotor\n"
 newline = newline + "          SymmetryFactor\t1\n" #write 1 as default - user can change this
 newline = newline + "        End\n"
