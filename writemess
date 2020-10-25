@@ -108,21 +108,22 @@ newline = newline + "        End\n"
 
 if N_rotor > 0:
     for rotor in range(int(N_rotor)):
+        #default values - reset for each rotor
+        grp1='X'
+        grp2='X'
+        ax1='X'
+        ax2='X'
+        sym='1'
+        stp='36'
+        potline=''
         if prompt:
-        #if input("Load rotor from file? (y/n): ").lower().strip()[:1] == "y":
             print(f"Load rotor {rotor:d}:")
-            #flog = input('Specify rotor file name: ')
             grp = input('Specify rotor group name: ')
             scanf = method.replace('.log',f'_scan_{grp:s}.log')
-            grp1, grp2, ax1, ax2, sym, stp, potline = get_rotor(scanf)
-        else:
-            grp1='X'
-            grp2='X'
-            ax1='X'
-            ax2='X'
-            sym='1'
-            stp='36'
-            potline=''
+            try:
+                grp1, grp2, ax1, ax2, sym, stp, potline = get_rotor(scanf)
+            except:
+                print('Requested scan output not found. Writing template block.')
             
         #grp1 and grp2 are potential member of the group - but not both; will figure out later what do do here 
         newline = newline + "        Rotor     Hindered\n"
@@ -130,8 +131,6 @@ if N_rotor > 0:
         newline = newline + "          Axis                   %s %s \t\t# rotational axis\n"%(ax1, ax2)
         newline = newline + "          Symmetry               %s \t\t# 360/angle of rotation to recover the initial structure\n"%sym
         newline = newline + "          Potential[kcal/mol]    %s \t\t# number of equidistant point on the potential energy curve with respect to the rotational angle\n\t\t%s\n          End\n"%(stp,potline)
-        
-#    newline = newline + "\n        WARNING! Remove %d frequencies to account for rotors!\n"%(N_rotor)
 
 newline = newline + "\n        Frequencies[1/cm]\t%d"%(N_freq)
 newline = newline +  freq
@@ -141,13 +140,12 @@ if len(imaginary)>0:
 
 if prompt:
     print("Calculate and write energy:")    
-#if input("Write energy from calculations? (y/n): ").lower().strip()[:1] == "y": 
-    flog = method#input('Specify Gaussian log file name: ')
-    SPE_ext = input("Specify ORCA output file name extension (replaces '.log'): ")
-    forc = method.replace('.log',SPE_ext)#input('Specify ORCA output file name: ')
-    newzero = float(input('Baseline value for relative energies (kcal/mol)? Enter zero (0) if not: '))
+    flog = method
+    SPE_ext = input("Specify ORCA output file name extension (replaces '.log') [_f12_tz.orca.out]: ") or '_f12_tz.orca.out'
+    forc = method.replace('.log',SPE_ext)
+    newzero = float(input('Baseline value for relative energies (kcal/mol)? [0]: ') or '0')
     energy=627.5095*get_energy(flog,forc) #convert to kcal/mol
-    newline = newline + "\n        ZeroEnergy[kcal/mol]\t%f\n"%(energy-newzero)   
+    newline = newline + f"\n        ZeroEnergy[kcal/mol]\t{(energy-newzero):.2f}\n"
 else:
     if len(imaginary)>0:
         newline = newline + "\n        ZeroEnergy[kcal/mol]\tTSENERGY\n"

@@ -6,7 +6,7 @@ channels:
   - cantera
   - pytorch
   - conda-forge
-  - pacchem
+  - auto-mech
 dependencies:
   - cairo
   - cairocffi

@@ -7,15 +7,17 @@
 #
 #    get_energy: a python function to read and return the optimized energy
 #    Combines zero point energy from geometry/frequency calculation with single-point energy result
-#    Usage: energy=get_energy(flog,forc,floc)
-#    flog and forc are Gaussian and ORCA output files, respectively
-#    floc is path to directory where files are located
+#    Usage: energy=get_energy(logfile,orcafile)
+#    logfile and orcafile are Gaussian and ORCA output files, respectively
 #    Currently written assuming Gaussian and Orca 
 #
 #    get_rotor: a python function to read a g09/g16 rotor scan and return key values
-#    Usage: []=get_rotor(fscan, floc)
-#    fscan is Gaussian scan log (output) file
-#    floc is path to directory where file is located
+#    Usage: []=get_rotor(logfile)
+#    logfile is Gaussian scan log (output) file
+#
+#    get_bondscan: a python function to read a g09/g16 bond scan and return distance and energy
+#    Usage: []=get_bondscan(logfile)
+#    logfile is Gaussian scan log (output) file
 #
 #    get_cartesian: a python function to read g09/g16 output and return the 
 #    cartesian coordinates of the structure for inclusion in new input files
@@ -27,11 +29,13 @@
 #    get_frequencies: a python function to read g09/g16 output and return the 
 #    frequncies broken down as real and imaginary and a text block for writing 
 #    PAPR/MESS input
-#    Usage: [real, imaginary, freq_block]=get_frequencies(logfile, linear, N_rotor):
+#    Usage: [real, imaginary, freq_block]=get_frequencies(logfile, linear, N_rotor)
+#    logfile is Gaussian log (output) file
 #
 #    get_energy_orca: a python function to read and return the optimized energy
 #    from ORCA output file
-#    Usage: energy=get_energy(orcf)
+#    Usage: energy=get_energy(orcafile)
+#    orcafile is an ORCA output file
 #
 #    All contents of this file:
 #    Copyright (C) 2020  Mark E. Fuller
