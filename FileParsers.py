@@ -149,24 +149,33 @@ def get_bondscan(logf):
     temp=''
 
     for q,line in enumerate(lines):
+        #relaxed scans
         if line.startswith(' The following ModRedundant input section has been read:'):
             bits = lines[q+1].split()
             grp1 = bits[1] #side A
             grp2 = bits[2] #side B
             stp = int(bits[4]) #number of scan steps
             inc = float(bits[5]) #increment, angstrom
-        
         #find line with initial bond length
         if ('!' and 'Scan') in line:
         #if (f'R({grp1},{grp2})' or f'R({grp2},{grp1})') and 'Scan' in line:
             bits = line.split()
             r0 = float(bits[3]) #initial bond distance, angstrom
-        
+
+        #rigid scans
+        if ('B' and 'Scan') in line:
+            bits = line.replace('Scan','').split()
+            r0 = float(bits[1]) #initial bond distance, angstrom
+            stp = int(bits[2]) #number of scan steps
+            inc = float(bits[3]) #increment, angstrom
+
         #extract potentials
         if line.startswith(' SCF Done:  E('):
             #not always final
             temp = line.split()[4]
-        if line.startswith(' Step number   1 out of a maximum of'):
+            
+        #relaxed / rigid scan
+        if (line.startswith(' Step number   1 out of a maximum of') or line.startswith(' Variable Step   Value')):
             #starting new step, so last energy was final
             Escan = float(temp.replace('D','E'))
             raw_potential.append(Escan)
