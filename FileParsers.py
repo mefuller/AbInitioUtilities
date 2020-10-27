@@ -138,68 +138,89 @@ def get_rotor(logf):
     return grp1, grp2, ax1, ax2, sym, stp, potline
 
 #-------------------------------------------------------------------------------
-def get_bondscan(logf):
+def get_bondscan(logf, scantype):
+    from PhaseSpaceFit import PhaseSpaceFit
+
+    if scantype == 'relaxed':
+        relaxed = True
+    elif scantype == 'rigid':
+        relaxed = False
+    else:
+        print('Only relaxed and rigid scans currently supported.')
+        print('Fallback to rigid')
+        relaxed = False
 
     scantext = open(logf, 'r')
     lines = scantext.readlines()
     scantext.close()
 
+    radius = []
     raw_potential = []
+    
+    if relaxed:
+        for q,line in enumerate(lines):
+            #relaxed scans
+            if line.startswith(' The following ModRedundant input section has been read:'):
+                bits = lines[q+1].split()
+                grp1 = bits[1] #side A
+                grp2 = bits[2] #side B
+                stp = int(bits[4]) #number of scan steps
+                inc = float(bits[5]) #increment, angstrom
 
-    temp=''
+            #find line with initial bond length
+            if ('!' in line) and ('Scan' in line):
+            #if (f'R({grp1},{grp2})' or f'R({grp2},{grp1})') and 'Scan' in line:
+                bits = line.split()
+                r0 = float(bits[3]) #initial bond distance, angstrom
 
-    for q,line in enumerate(lines):
-        #relaxed scans
-        if line.startswith(' The following ModRedundant input section has been read:'):
-            bits = lines[q+1].split()
-            grp1 = bits[1] #side A
-            grp2 = bits[2] #side B
-            stp = int(bits[4]) #number of scan steps
-            inc = float(bits[5]) #increment, angstrom
-        #find line with initial bond length
-        if ('!' and 'Scan') in line:
-        #if (f'R({grp1},{grp2})' or f'R({grp2},{grp1})') and 'Scan' in line:
-            bits = line.split()
-            r0 = float(bits[3]) #initial bond distance, angstrom
+            #extract potentials
+            if line.startswith(' SCF Done:  E('):
+                #not always final
+                temp = line.split()[4]
+                
+            #relaxed / rigid scan
+            if line.startswith(' Step number   1 out of a maximum of'):
+                #starting new step, so last energy was final
+                Escan = float(temp.replace('D','E'))
+                raw_potential.append(Escan)
 
-        #rigid scans
-        if ('B' and 'Scan') in line:
-            bits = line.replace('Scan','').split()
-            r0 = float(bits[1]) #initial bond distance, angstrom
-            stp = int(bits[2]) #number of scan steps
-            inc = float(bits[3]) #increment, angstrom
-
-        #extract potentials
-        if line.startswith(' SCF Done:  E('):
-            #not always final
-            temp = line.split()[4]
-            
-        #relaxed / rigid scan
-        if (line.startswith(' Step number   1 out of a maximum of') or line.startswith(' Variable Step   Value')):
-            #starting new step, so last energy was final
+            #after the last line, append the last value
             Escan = float(temp.replace('D','E'))
             raw_potential.append(Escan)
 
-    #after the last line, append the last value
-    Escan = float(temp.replace('D','E'))
-    raw_potential.append(Escan)
-    #
+        #return lists to pass to fitting routines
+        for dx in range(max(stp, len(raw_potential))):
+            radius.append(dx*inc + r0)
+
+    #rigid scan
+    else:
+        FindScanVals = True
+        for q,line in enumerate(lines):
+            if ('B' in line) and ('Scan' in line) and FindScanVals:
+                bits = line.replace('Scan','').split()
+                r0 = float(bits[1]) #initial bond distance, angstrom
+                stp = int(bits[2]) #number of scan steps
+                inc = float(bits[3]) #increment, angstrom
+                FindScanVals = False
+            if line.startswith(' Summary of the potential surface scan:'):
+                for w in range(q+3,q+3+stp+1):
+                    bits = lines[w].split()
+                    radius.append(float(bits[1]))
+                    raw_potential.append(float(bits[2]))
+
+#general checking and returning information
     mini = min(raw_potential)
     maxi = max(raw_potential)
 
     if raw_potential[0]!=mini:
         print ("Warning: first entry is not minimum!")
-    
-    #return lists to pass to fitting routines
-    radius = []
-    for dx in range(max(stp, len(raw_potential))):
-        radius.append(dx*inc + r0)
-        
+
     if stp > len(raw_potential):
         print ("Warning: scan appears to have terminated early")
-    if stp < len(raw_potential):
-        print ("Warning: scan potential list is unexpectedly long - truncating")
-        raw_potential = raw_potential[:stp]
+    if len(radius) < len(raw_potential):
+        print ("Warning: scan potential list is too long - truncating")
+        radius = radius[:len(radius)]
+        raw_potential = raw_potential[:len(radius)]
 
     return radius, raw_potential
 

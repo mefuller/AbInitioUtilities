@@ -55,7 +55,15 @@ for rotor in sys.argv[2:]:
 
         scanline += line
 
-    scanline += '\nW X Y Z S 36 10.0' #template dihedral scan
+    #update for some of my most common rotors
+    if rotor == 'ch3':
+        sym = 3
+    elif rotor == 'no2':
+        sym = 2
+    else:
+        sym = 1
+
+    scanline += f'\nW X Y Z S {(36/sym):n} 10.0' #template dihedral scan
 
     with open(ofilename, 'w') as sfile:
         sfile.write(scanline)

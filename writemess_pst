@@ -52,16 +52,20 @@ command_line = sys.argv[1:]
 frag0 = command_line[0]
 frag1 = command_line[1]
 
+
 N_rotor = 0
 linear = False
 newout = False
 prompt = False
+scantype = 'none'
 if len(command_line)>2: #additional arguments besides fragments passed
     for item in command_line[2:]:
         if item=='yes':
             newout = True
         elif item=='interactive':
             prompt = True
+        elif (item=='relaxed') or (item=='relaxed'):
+            scantype = item
         else:
             print(f"Command line argument not recognized: {item}")
 
@@ -92,8 +96,9 @@ newline += "        SymmetryFactor\tX\n"
 
 if prompt:
     scanf = input("Specify bond scan file: ")
-    r, V = get_bondscan(scanf)
-    A, n = PhaseSpaceFit(r, V)    
+    r, V = get_bondscan(scanf, scantype)
+    A, n = PhaseSpaceFit(r, V)
+    print('Warning! Check that scan reproduces expected barrier height!')
 else:
     A = 0
     n = 0
