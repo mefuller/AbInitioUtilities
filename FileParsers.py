@@ -99,7 +99,7 @@ def get_rotor(logf):
             grp1 = bits[1] #possible group member
             grp2 = bits[4] #other possible group member
             stp = int(bits[6]) #number of scan steps
-            inc = float(bits[7]) #angular increment, degree
+            inc = abs(float(bits[7])) #angular increment, degree
 
         if line.startswith(' E2('):
             #raw_potential.append(float(line.split()[5]))

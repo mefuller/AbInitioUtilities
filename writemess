@@ -132,7 +132,7 @@ if N_rotor > 0:
         newline = newline + "          Symmetry               %s \t\t# 360/angle of rotation to recover the initial structure\n"%sym
         newline = newline + "          Potential[kcal/mol]    %s \t\t# number of equidistant point on the potential energy curve with respect to the rotational angle\n\t\t%s\n          End\n"%(stp,potline)
 
-newline = newline + "\n        Frequencies[1/cm]\t%d"%(N_freq)
+newline = newline + "\n        Frequencies[1/cm]\t%d\n"%(N_freq)
 newline = newline +  freq
 if len(imaginary)>0:
     for i in imaginary:
