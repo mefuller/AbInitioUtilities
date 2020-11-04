@@ -79,6 +79,14 @@ def get_energy(logf,orcf):
 
     return (E0 + ZPE)
 
+def get_energy_CBS(logf,orcf_tz,orcf_qz):
+    E0_ZPE, ZPE = get_energy_gaussian(logf)
+    E0_TZ, T1_TZ = get_energy_orca(orcf_tz)
+    E0_QZ, T1_QZ = get_energy_orca(orcf_qz)
+    
+    E0_CBS = ((64.0*E0_QZ - 27.0*E0_TZ)/37.0) #64 = 4**3, 27 = 3**3, 37 = 4**3 - 3**3
+
+    return (E0_CBS + ZPE)
 #-------------------------------------------------------------------------------
 
 def get_rotor(logf):

@@ -22,7 +22,7 @@ def PhaseSpaceFit(r_list, V_list):
     V_hartree = V_hartree - np.mean(V_hartree[-3:])
 
     #fit the data
-    fit = curve_fit(MESSpotential,r_bohr,V_hartree)
+    fit = curve_fit(MESSpotential,r_bohr,V_hartree, bounds=([-np.inf, 2.0], [np.inf, np.inf]))
     A = fit[0][0] #prefactor
     n = fit[0][1]
     return A, n
