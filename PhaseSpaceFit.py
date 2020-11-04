@@ -1,3 +1,29 @@
+#    PhaseSpaceFit.py: curve fit bond scan results for use in phase-space theory
+#
+#    All contents of this file:
+#    Copyright (C) 2020  Mark E. Fuller
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+#    Mark E. Fuller: mark.e.fuller@gmx.de
+
+#setup terminal output later:
+#    PhaseSpaceFit.py  Copyright (C) 2020  Mark E. Fuller
+#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+#    This is free software, and you are welcome to redistribute it
+#    under certain conditions; type `show c' for details.
+
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -22,7 +48,8 @@ def PhaseSpaceFit(r_list, V_list):
     V_hartree = V_hartree - np.mean(V_hartree[-3:])
 
     #fit the data
-    fit = curve_fit(MESSpotential,r_bohr,V_hartree, bounds=([-np.inf, 2.0], [np.inf, np.inf]))
+    #MESS requires n > 2
+    fit = curve_fit(MESSpotential,r_bohr,V_hartree, bounds=([-np.inf, 2.01], [np.inf, np.inf]))
     A = fit[0][0] #prefactor
     n = fit[0][1]
     return A, n
