@@ -58,7 +58,11 @@ for rotor in sys.argv[2:]:
     #update for some of my most common rotors
     if rotor == 'ch3':
         sym = 3
+    elif rotor == 'ch3_0':
+        sym = 3
     elif rotor == 'no2':
+        sym = 2
+    elif rotor == 'ch2':
         sym = 2
     else:
         sym = 1
@@ -67,3 +71,5 @@ for rotor in sys.argv[2:]:
 
     with open(ofilename, 'w') as sfile:
         sfile.write(scanline)
+
+os.remove(scanfilename) #don't need template anymore 
