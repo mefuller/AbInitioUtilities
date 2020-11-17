@@ -73,15 +73,14 @@ if len(command_line)>2: #additional arguments besides fragments passed
 N_atoms0, geom0, multiplicity0 = get_cartesian(frag0)
 N_atoms1, geom1, multiplicity1 = get_cartesian(frag1)
 
-nH = geom0.count("H")+geom1.count("H")
-nC = geom0.count("C")+geom1.count("C")
-nN = geom0.count("N")+geom1.count("N")
-nO = geom0.count("O")+geom1.count("O")
+stoich = '' #empty string
+for atom in ['H', 'C', 'N', 'O']: #atoms currently in our reactive systems
+    temp = geom0.count(atom)+geom1.count(atom)
+    if temp > 0:
+        stoich+=f'{atom:s}{temp:d}'
 
 geom0 = geom0.replace('\n','\n\t') #add tabs to reformat
 geom1 = geom1.replace('\n','\n\t') #add tabs to reformat
-
-stoich = f"H{nH}C{nC}N{nN}O{nO}"
 
 newline = '\n'
 newline += "  Barrier	BX by wz\n"
