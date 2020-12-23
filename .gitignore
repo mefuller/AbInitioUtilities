@@ -2,6 +2,12 @@
 *.sh
 writebondscan
 writerigidscan
+*.log
+*.fchk
+tamkinthermo.py
+getthermo
+nasafit.py
+Old/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

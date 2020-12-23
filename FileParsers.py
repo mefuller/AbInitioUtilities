@@ -147,7 +147,6 @@ def get_rotor(logf):
 
 #-------------------------------------------------------------------------------
 def get_bondscan(logf, scantype):
-    from PhaseSpaceFit import PhaseSpaceFit
 
     if scantype == 'relaxed':
         relaxed = True
