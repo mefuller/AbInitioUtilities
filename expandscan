@@ -75,7 +75,7 @@ if scanfilename.endswith('_scan_.gjf'): #make sure this is the template file
                 sfile.write(scanline)
 
         os.remove(scanfilename) #don't need template anymore
-    else:
+    else: #when rotor list is empty
         print('No rotor list provided. Doing nothing.')
-else:
+else: #when filename doesn't match ouput of writescan
     print('Given file does not match expected naming pattern. Doing nothing.')
