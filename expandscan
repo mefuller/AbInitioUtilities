@@ -23,7 +23,7 @@
 #    Mark E. Fuller: mark.e.fuller@gmx.de
 
 
-#setup terminal output later:
+# setup terminal output later:
 #    writescan  Copyright (C) 2020  Mark E. Fuller
 #    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
 #    This is free software, and you are welcome to redistribute it
@@ -33,49 +33,47 @@
 ################################################################################
 
 # Import stuff.
-import re # regular expressions
-import fileinput, sys, os
-import time
-import shutil
+import sys
+import os
 
-scanfilename = sys.argv[1] #output of writescan: *scan_.gjf
-if scanfilename.endswith('_scan_.gjf'): #make sure this is the template file
-    if len(sys.argv[2:])>1:
+scanfilename = sys.argv[1]  # output of writescan: *scan_.gjf
+if scanfilename.endswith("_scan_.gjf"):  # make sure this is the template file
+    if len(sys.argv[2:]) > 1:
         for rotor in sys.argv[2:]:
-            rotorstr='_scan_{:s}.'.format(rotor)
-            ofilename = scanfilename.replace('_scan_.',rotorstr)
+            rotorstr = "_scan_{:s}.".format(rotor)
+            ofilename = scanfilename.replace("_scan_.", rotorstr)
 
-            with open(scanfilename, 'r')as ifile:
+            with open(scanfilename, "r") as ifile:
                 ifilelines = ifile.readlines()
 
-            scanline = ''
+            scanline = ""
 
-            #copy input file information with req'd updates
-            for (l,line) in enumerate(ifilelines):
-                if line.startswith('%chk'):
-                    line = line.replace('_scan_.',rotorstr)
+            # copy input file information with req'd updates
+            for (l, line) in enumerate(ifilelines):
+                if line.startswith("%chk"):
+                    line = line.replace("_scan_.", rotorstr)
 
                 scanline += line
 
-            #update for some of my most common rotors
-            if rotor == 'ch3':
+            # update for some of my most common rotors
+            if rotor == "ch3":
                 sym = 3
-            elif rotor == 'ch3_0':
+            elif rotor == "ch3_0":
                 sym = 3
-            elif rotor == 'no2':
+            elif rotor == "no2":
                 sym = 2
-            elif rotor == 'ch2':
+            elif rotor == "ch2":
                 sym = 2
             else:
                 sym = 1
 
-            scanline += f'\nW X Y Z S {(36/sym):n} 10.0' #template dihedral scan
+            scanline += f"\nW X Y Z S {(36/sym):n} 10.0"  # template dihedral scan
 
-            with open(ofilename, 'w') as sfile:
+            with open(ofilename, "w") as sfile:
                 sfile.write(scanline)
 
-        os.remove(scanfilename) #don't need template anymore
-    else: #when rotor list is empty
-        print('No rotor list provided. Doing nothing.')
-else: #when filename doesn't match ouput of writescan
-    print('Given file does not match expected naming pattern. Doing nothing.')
+        os.remove(scanfilename)  # don't need template anymore
+    else:  # when rotor list is empty
+        print("No rotor list provided. Doing nothing.")
+else:  # when filename doesn't match ouput of writescan
+    print("Given file does not match expected naming pattern. Doing nothing.")

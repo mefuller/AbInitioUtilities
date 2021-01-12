@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# 
+#
 #    extractf12: a python script to print the output energy and T1 diagnostic from ORCA single-point calculations from the command line
 #    modified from the original function written by Aaron Danilack for use with Molpro output
 #    Usage: $ extractf12 file1 file2 ...
@@ -21,7 +21,7 @@
 #    Mark E. Fuller: mark.e.fuller@gmx.de
 
 
-#setup terminal output later:
+# setup terminal output later:
 #    extractf12  Copyright (C) 2020  Mark E. Fuller
 #    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
 #    This is free software, and you are welcome to redistribute it
@@ -35,7 +35,7 @@
 import sys
 from FileParsers import get_energy_orca
 
-print('\n')
+print("\n")
 
 for filename in sys.argv[1:]:
 
@@ -43,6 +43,6 @@ for filename in sys.argv[1:]:
 
     # Print the data we want.
     print(filename)
-    print(f'E0 = {q:f}')
-    print(f'T1 = {w:f}')
-    print('\n')
+    print(f"E0 = {q:f}")
+    print(f"T1 = {w:f}")
+    print("\n")

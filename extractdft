@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# 
+#
 #    extractdft: a python script to print the output energies from Gaussian optimizations from the command line
 #    modified from the original function written by Aaron Danilack
 #    Usage: $ extractdft file1.log file2.log ...
@@ -21,7 +21,7 @@
 #    Mark E. Fuller: mark.e.fuller@gmx.de
 
 
-#setup terminal output later:
+# setup terminal output later:
 #    extractdft  Copyright (C) 2020  Mark E. Fuller
 #    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
 #    This is free software, and you are welcome to redistribute it
@@ -35,7 +35,7 @@
 import sys
 from FileParsers import get_energy_gaussian
 
-print('\n')
+print("\n")
 
 for filename in sys.argv[1:]:
 
@@ -43,6 +43,6 @@ for filename in sys.argv[1:]:
 
     # Print the data we want.
     print(filename)
-    print(f'E0+ZPE = {q:f}')
-    print(f'ZPE = {w:f}')
-    print('\n')
+    print(f"E0+ZPE = {q:f}")
+    print(f"ZPE = {w:f}")
+    print("\n")

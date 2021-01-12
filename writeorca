@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# 
+#
 #    writeorca: a python script to generate ORCA input files from g09/g16 output
 #    derived from the function g09_to_paper.py written by Franklin Goldsmith
 #    Usage: $ writeorca file1.log file2.log ...
@@ -21,7 +21,7 @@
 #    Mark E. Fuller: mark.e.fuller@gmx.de
 
 
-#setup terminal output later:
+# setup terminal output later:
 #    writeorca  Copyright (C) 2020  Mark E. Fuller
 #    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
 #    This is free software, and you are welcome to redistribute it
@@ -31,24 +31,23 @@
 ################################################################################
 
 # Import stuff.
-import re # regular expressions
-import fileinput, sys, os
-import time
-import shutil
+import sys
 
 from FileParsers import get_cartesian
-#------------------------------------------------------------------------------------------------------------------------------------
-# BEGIN HERE
-#------------------------------------------------------------------------------------------------------------------------------------
 
-for gfilename in sys.argv[1:]: 
+# ------------------------------------------------------------------------------------------------------------------------------------
+# BEGIN HERE
+# ------------------------------------------------------------------------------------------------------------------------------------
+
+for gfilename in sys.argv[1:]:
 
     N_atoms, geom, multiplicity = get_cartesian(gfilename)
 
-
-    methods={"! DLPNO-CCSD(T)-F12 cc-pVTZ-F12 cc-pVTZ/C cc-pVTZ-F12-CABS TightSCF\n": '_f12_tz.inp',
-                    "! DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/c TightSCF\n": '_ccsdt_tz.inp',
-                    "! DLPNO-CCSD(T) cc-pVQZ cc-pVQZ/c TightSCF\n": '_ccsdt_qz.inp'}
+    methods = {
+        "! DLPNO-CCSD(T)-F12 cc-pVTZ-F12 cc-pVTZ/C cc-pVTZ-F12-CABS TightSCF\n": "_f12_tz.inp",
+        "! DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/c TightSCF\n": "_ccsdt_tz.inp",
+        "! DLPNO-CCSD(T) cc-pVQZ cc-pVQZ/c TightSCF\n": "_ccsdt_qz.inp",
+    }
 
     for newline, ext in methods.items():
         newline = newline + "%MaxCore 20000\n"
@@ -56,11 +55,10 @@ for gfilename in sys.argv[1:]:
         newline = newline + "%pal nprocs 12\n"
         newline = newline + "end\n"
         newline = newline + "\n"
-        newline = newline + "* xyz 0 %d\n"%(int(multiplicity))
+        newline = newline + "* xyz 0 %d\n" % (int(multiplicity))
         newline = newline + geom
-        newline = newline + "*\n"    
+        newline = newline + "*\n"
 
-        ofilename = gfilename.replace('.log',ext)
-        with open(ofilename, 'w') as ofile:
+        ofilename = gfilename.replace(".log", ext)
+        with open(ofilename, "w") as ofile:
             ofile.write(newline)
-
