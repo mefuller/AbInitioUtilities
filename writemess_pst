@@ -34,7 +34,7 @@
 ################################################################################
 import sys
 
-from FileParsers import *
+from FileParsers import get_cartesian, get_bondscan, get_frequencies
 from PhaseSpaceFit import PhaseSpaceFit
 
 # -------------------------------------------------------------------------------

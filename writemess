@@ -37,7 +37,7 @@
 import sys
 import os
 
-from FileParsers import *
+from FileParsers import is_number, get_cartesian, get_energy, get_frequencies, get_rotor
 
 # ------------------------------------------------------------------------------------------------------------------------------------
 # BEGIN HERE
