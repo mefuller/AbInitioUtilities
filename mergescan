@@ -74,8 +74,8 @@ if not (len(potlinef) == len(potliner)):
     exit()
 
 # time to get down to business
-fwdval = np.array(potlinef.split()).astype(np.float)
-revval = np.array(potliner.split()).astype(np.float)
+fwdval = np.array(potlinef.split()).astype(float)
+revval = np.array(potliner.split()).astype(float)
 
 # minimum energy at each scan point
 minval = np.minimum(fwdval, revval[::-1])
