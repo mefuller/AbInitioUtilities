@@ -3,8 +3,8 @@
 #    messmanager: a python script to calculate energies related values for MESS
 #    requires a driver script with necessary inputs (dictionaries, fiel extensions))
 #    prints out energy and phase space theory parameters for system
-#    relies on file naming conventions and is adapted to particular problems, so
-#    this is really largely an example
+#    relies on file naming conventions and is adapted to particular problems,
+#    so this is really largely an example
 #    Copyright (C) 2020  Mark E. Fuller
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 #    under certain conditions; type `show c' for details.
 
 
-################################################################################
+###############################################################################
 
 
 from FileParsers import get_bondscan

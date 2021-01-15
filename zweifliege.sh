@@ -11,17 +11,15 @@ until [ $COUNTER -gt $# ]; do
 	SUBMIT=true
 	if [[ ${args[COUNTER-1]} == *".log"* ]]; then
 		FILENAME=${args[COUNTER-1]%.log}
-	else 
+	else
 	    SUBMIT=false
 	fi
 
 	if [ "$SUBMIT" = true ]; then
-		extractdft $FILENAME.log
-		writescan $FILENAME.log
-		writeorca $FILENAME.log
-		osubmit $FILENAME\_ccsdt_tz.inp
-		osubmit $FILENAME\_ccsdt_qz.inp
-		#osubmit $FILENAME*.inp
+		extractdft.py $FILENAME.log
+		writescan.py $FILENAME.log
+		writeorca.py $FILENAME.log
+		osubmit.sh $FILENAME\_f12_tz.inp
 	fi
 
 	COUNTER=$((COUNTER + 1))

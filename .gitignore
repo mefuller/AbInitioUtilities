@@ -1,5 +1,5 @@
 # specific files, temporary, etc.
-*.sh
+orca2G.sh
 writebondscan
 writerigidscan
 *.log
