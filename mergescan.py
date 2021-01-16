@@ -97,7 +97,9 @@ else:
     revval = np.array(potliner.split()).astype(float)
 
 # minimum energy at each scan point
-minval = np.minimum(fwdval, revval[::-1])
+minval = fwdval.copy()
+minval[1:] = np.minimum(fwdval[1:], revval[:0:-1])
+
 
 # make a string to replace potline
 potline_merge = (

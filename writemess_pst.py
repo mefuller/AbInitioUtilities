@@ -61,7 +61,7 @@ if len(command_line) > 2:  # additional arguments besides fragments passed
             newout = True
         elif item == "interactive":
             prompt = True
-        elif (item == "relaxed") or (item == "relaxed"):
+        elif (item == "relaxed") or (item == "rigid"):
             scantype = item
         else:
             print(f"Command line argument not recognized: {item}")
