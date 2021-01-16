@@ -113,7 +113,7 @@ newline += "        End\n"
 real0, imaginary0, freq0 = get_frequencies(frag0, (N_atoms0 == 2), N_rotor)
 real1, imaginary1, freq1 = get_frequencies(frag1, (N_atoms1 == 2), N_rotor)
 
-# check for imaginary requencies
+# check for imaginary frequencies
 if (len(imaginary0) | len(imaginary1)) != 0:
     print("Warning! Imaginary frequencies detected")
 

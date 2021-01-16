@@ -48,11 +48,13 @@ command_line = sys.argv[1:]
 scanf = command_line[0]
 scanr = scanf.replace(".log", "-1.log")
 
+fill = False  # logical for broken scans
+
 if len(command_line) > 1:  # additional arguments besides fragments passed
     print('Only supply forward scan file. Append reverse with "-1"')
 
 grp1f, grp2f, ax1f, ax2f, symf, stpf, potlinef = get_rotor(scanf)
-grp1r, grp2r, ax1r, ax2r, symr, stpr, potliner = get_rotor(scanf)
+grp1r, grp2r, ax1r, ax2r, symr, stpr, potliner = get_rotor(scanr)
 
 if not compare([ax1f, ax2f], [ax1r, ax2r]):
     print("ERROR! Scans do not use consistent axis - terminating")
@@ -70,12 +72,29 @@ if not (abs(stpf) == abs(stpr)):
     exit()
 
 if not (len(potlinef) == len(potliner)):
-    print("ERROR! Scans potential lengths do not match - terminating")
-    exit()
+    print("WARNING! Scans potential lengths do not match")
+    next = (input("Merge two partial scans? [y]: ") or "y")
+    if next == ("y" or "yes"):
+        n_step = (input(f"Total number of scan steps? [{36 / symf}]: ") or (36 / symf))
+        scan_template = np.full(int(n_step), np.inf)  # preset with very high value
+        fill = True
+    else:
+        print("Unable to continue - terminating")
+        exit()
 
 # time to get down to business
-fwdval = np.array(potlinef.split()).astype(float)
-revval = np.array(potliner.split()).astype(float)
+if fill:
+    fwdtmp = np.array(potlinef.split()).astype(float)
+    fwdval = scan_template.copy()
+    for q, pot in enumerate(fwdtmp):
+        fwdval[q] = np.minimum(pot, fwdval[q])
+    revtmp = np.array(potliner.split()).astype(float)
+    revval = scan_template.copy()
+    for q, pot in enumerate(fwdtmp):
+        revval[q] = np.minimum(pot, revval[q])
+else:
+    fwdval = np.array(potlinef.split()).astype(float)
+    revval = np.array(potliner.split()).astype(float)
 
 # minimum energy at each scan point
 minval = np.minimum(fwdval, revval[::-1])
