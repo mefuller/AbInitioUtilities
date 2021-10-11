@@ -38,12 +38,12 @@
 #    orcafile is an ORCA output file
 #
 #    All contents of this file:
-#    Copyright (C) 2020  Mark E. Fuller
+#    Copyright (C) 2020 - 2021  Mark E. Fuller
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#    any later version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,15 +53,48 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-#    Mark E. Fuller: mark.e.fuller@gmx.de
+#    Mark E. Fuller: fuller@stossrohr.net 
+#
+##############################################################################
 
+"""
+FileParsers.py: Python functions for extracting data from g09/g16/orca output
 
-# setup terminal output later:
-#    FileParsers.py  Copyright (C) 2020  Mark E. Fuller
-#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-#    This is free software, and you are welcome to redistribute it
-#    under certain conditions; type `show c' for details.
+is_number: a little helper function to evaluate a variable as a number (or not)
+copied in its entirely from Franklin Goldsmith
 
+get_energy: a python function to read and return the optimized energy
+Combines zero point energy from geometry/frequency calculation with single-point energy result
+Usage: energy=get_energy(logfile,orcafile)
+logfile and orcafile are Gaussian and ORCA output files, respectively
+Currently written assuming Gaussian and Orca
+
+get_rotor: a python function to read a g09/g16 rotor scan and return key values
+Usage: []=get_rotor(logfile)
+logfile is Gaussian scan log (output) file
+
+get_bondscan: a python function to read a g09/g16 bond scan and return distance and energy
+Usage: []=get_bondscan(logfile)
+logfile is Gaussian scan log (output) file
+
+get_cartesian: a python function to read g09/g16 output and return the
+cartesian coordinates of the structure for inclusion in new input files
+developed (mostly copied)) from the function g09_to_paper.py written by
+Franklin Goldsmith
+Usage: [N_atoms, geom_block, multiplicity]=get_cartesian(logfile)
+logfile is Gaussian log (output) file
+
+get_frequencies: a python function to read g09/g16 output and return the
+frequncies broken down as real and imaginary and a text block for writing
+PAPR/MESS input
+Usage: [real, imaginary, freq_block]=get_frequencies(logfile, linear, N_rotor)
+logfile is Gaussian log (output) file
+
+get_energy_orca: a python function to read and return the optimized energy
+from ORCA output file
+Usage: energy=get_energy(orcafile)
+orcafile is an ORCA output file
+"""
 
 def is_number(s):
     try:

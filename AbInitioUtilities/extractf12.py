@@ -8,7 +8,7 @@
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#    any later version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,18 +18,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-#    Mark E. Fuller: mark.e.fuller@gmx.de
-
-
-# setup terminal output later:
-#    extractf12  Copyright (C) 2020  Mark E. Fuller
-#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-#    This is free software, and you are welcome to redistribute it
-#    under certain conditions; type `show c' for details.
+#    Mark E. Fuller: fuller@stossrohr.net 
 
 
 ################################################################################
 
+"""
+extractf12: a python script to print the output energy and T1 diagnostic from ORCA single-point calculations from the command line
+modified from the original function written by Aaron Danilack for use with Molpro output
+Usage: $ extractf12 file1 file2 ...
+"""
 
 # Import stuff.
 import sys

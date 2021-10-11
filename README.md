@@ -9,12 +9,14 @@ These scripts, such as automatic job file creation and submission to slurm, coul
 
 Finally, I'm a hack when it comes to programming.
 Virtually all functions and scripts in this project are modifications of routines and ideas developed and implemented originally by Prof. C. Franklin Goldsmith (Argonne National Laboratory / Brown University), Aaron Danliack (Brown University), and/or Malte Döntgen (Brown University / RWTH Aachen).
-At some point I hope to package this in a way that the folder structure can just be copied somewhere in the Python path and everything will "just work", but I'm not quite there yet.
-For now, make sure the contents of this folder are in the path and that should be acceptable.
+It should be possible to install the python routines locally with `python
+setup.py install --user` and it is currently a work in progress to ready the
+entire collection for distribution via pypi or similar.
 
 Happy (transition state) hunting,
 
 Mark E. Fuller
-mark.e.fuller@gmx.de
+fuller@stossrohr.net
 15 April 2020
-Rev. 28 September 2020
+Revised 28 September 2020
+Revived again 11 October 2021
