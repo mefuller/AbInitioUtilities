@@ -9,7 +9,7 @@ getthermo
 nasafit.py
 Old/
 BASH/
-.vscode
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
