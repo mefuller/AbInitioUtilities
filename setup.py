@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='AbInitioUtilities',
@@ -8,13 +8,12 @@ setup(
     author='Mark E. Fuller',
     author_email='fuller@stossrohr.net',
     license='GPLv3+',
-    packages=['AbInitioUtilities'],
-    install_requires=['os',
-                      'sys',
-                      'numpy',
-                      'collections',
-                      ],
-
+    # packages=['AbInitioUtilities'],
+    packages=find_packages(
+        include=['AbInitioUtilities'],
+        exclude=['omit', 'BASH'],
+    ),
+    install_requires=['os_sys', 'numpy'],
     classifiers=[
         'Development Status :: 1 - Planning',
         'Intended Audience :: Science/Research',

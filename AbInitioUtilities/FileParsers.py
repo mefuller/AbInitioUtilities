@@ -96,6 +96,8 @@ Usage: energy=get_energy(orcafile)
 orcafile is an ORCA output file
 """
 
+MagicNo = 627.5095  # kcal/mole per hartree
+
 def is_number(s):
     try:
         float(s)
@@ -168,15 +170,13 @@ def get_rotor(logf):
     if raw_potential[0] != mini:
         print("Warning: first entry is not minimum!")
 
-    # print ("%.2F"%(627.5095*(maxi-mini)))
-
     potline = ""
 
     # output potential in kcal/mole
     # formatted like this to paste into MESS / PAPR input
     for q, V in enumerate(raw_potential):
         if q < stp:  # trim to correct/desired number of entries
-            potline = potline + " %.2F " % (627.5095 * (V - mini))
+            potline = potline + " %.2F " % (MagicNo * (V - mini))
         else:
             break
 

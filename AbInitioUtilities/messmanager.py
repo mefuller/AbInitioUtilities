@@ -5,12 +5,12 @@
 #    prints out energy and phase space theory parameters for system
 #    relies on file naming conventions and is adapted to particular problems,
 #    so this is really largely an example
-#    Copyright (C) 2020  Mark E. Fuller
+#    Copyright (C) 2020 - 2021  Mark E. Fuller
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#    any later version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,23 +20,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-#    Mark E. Fuller: mark.e.fuller@gmx.de
-
-
-# setup terminal output later:
-#    messmanager  Copyright (C) 2020  Mark E. Fuller
-#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-#    This is free software, and you are welcome to redistribute it
-#    under certain conditions; type `show c' for details.
+#    Mark E. Fuller: fuller@stossrohr.net
 
 
 ###############################################################################
 
 
 from FileParsers import get_bondscan
+from FileParsers import MagicNo
 from PhaseSpaceFit import PhaseSpaceFit
-
-MagicNo = 627.5095  # (kcal/mol)/hartree
 
 
 def messmanager(

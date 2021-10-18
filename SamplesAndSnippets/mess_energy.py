@@ -5,12 +5,12 @@
 #    goal is to be more systematic and less error-prone
 #
 #    All contents of this file:
-#    Copyright (C) 2020  Mark E. Fuller
+#    Copyright (C) 2020 - 2021 Mark E. Fuller
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#    any later version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,13 +20,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-#    Mark E. Fuller: mark.e.fuller@gmx.de
-
-#setup terminal output later:
-#    mess_energy.py  Copyright (C) 2020  Mark E. Fuller
-#    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
-#    This is free software, and you are welcome to redistribute it
-#    under certain conditions; type `show c' for details.
+#    Mark E. Fuller: fuller@stossrohr.net
 
 #information for R+NO2 project
 
@@ -264,7 +258,7 @@ for well, loc in WellLocationDict.items():
             print('\n')
         else:
             print('No RO-NO bond scan')
-        
+
         #R+NO2 present in system always
         rvals_R, Evals_R = get_bondscan(toplevel+loc+ext_dft_R, scantype)
         #fit the scans

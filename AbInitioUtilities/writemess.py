@@ -37,7 +37,7 @@ added functionality: prompts user for energy, rotor information during write
 import sys
 import os
 
-from FileParsers import is_number, get_cartesian, get_energy, get_frequencies, get_rotor
+from FileParsers import MagicNo, is_number, get_cartesian, get_energy, get_frequencies, get_rotor
 
 # ------------------------------------------------------------------------------------------------------------------------------------
 # BEGIN HERE
@@ -165,7 +165,7 @@ if prompt:
     newzero = float(
         input("Baseline value for relative energies (kcal/mol)? [0]: ") or "0"
     )
-    energy = 627.5095 * get_energy(flog, forc)  # convert to kcal/mol
+    energy = MagicNo * get_energy(flog, forc)  # convert to kcal/mol
     newline = newline + f"\n        ZeroEnergy[kcal/mol]\t{(energy-newzero):.2f}\n"
 else:
     if len(imaginary) > 0:
